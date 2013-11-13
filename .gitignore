@@ -1,0 +1,11 @@
+bin/
+gen/
+target/
+build/
+classes/
+.project
+.classpath
+.settings
+.checkstyle
+proguard.cfg
+proguard-project.txt
