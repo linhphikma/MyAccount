@@ -3,5 +3,9 @@
 
     <string name="app_name">麦本</string>
     <string name="action_settings">设置</string>
+    <string name="action_add">添加</string>
+    
+    <string name="msg_loading">载入中&#8230;</string>
+    <string name="msg_no_details">无记录</string>
 
 </resources>

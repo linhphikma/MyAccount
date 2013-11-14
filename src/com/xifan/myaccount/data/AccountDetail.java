@@ -1,7 +1,6 @@
 
 package com.xifan.myaccount.data;
 
-
 public class AccountDetail {
     private String mType;
     private String mDate;
@@ -29,7 +28,15 @@ public class AccountDetail {
     }
 
     public String getmDate() {
+        return mDate.substring(12, mDate.length());
+    }
+
+    public String getFullDate() {
         return mDate;
+    }
+
+    public String getOnlyDate() {
+        return mDate.substring(0, 11).trim();
     }
 
     public void setmDate(String mDate) {

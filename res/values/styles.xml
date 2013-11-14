@@ -9,11 +9,11 @@
         <item name="android:textSize">20sp</item>
     </style>
     <style name="Foot">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/disabled</item>
     </style>
     <style name="Money">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
