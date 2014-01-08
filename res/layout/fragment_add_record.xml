@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_record"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/activity_margin"
+    android:layout_marginRight="@dimen/activity_margin" >
+
+    <Spinner
+        android:id="@+id/type_spinner"
+        android:layout_width="96dp"
+        android:layout_height="@dimen/common_height"
+        android:gravity="center"
+        android:spinnerMode="dialog" />
+
+    <com.xifan.myaccount.widget.MoneyView
+        android:id="@+id/money"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/common_height"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/type_spinner"
+        android:gravity="center_vertical|right"
+        android:textSize="24sp" />
+
+    <Spinner
+        android:id="@+id/operate_type_spinner"
+        android:layout_width="96dp"
+        android:layout_height="@dimen/common_height"
+        android:layout_below="@id/money"
+        android:gravity="center"
+        android:spinnerMode="dialog" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_height"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/money"
+        android:layout_toRightOf="@id/operate_type_spinner"
+        android:gravity="center_vertical|right"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_below="@id/date"
+        android:layout_marginTop="10dp"
+        android:cursorVisible="false"
+        android:gravity="left|top"
+        android:hint="@string/add_record_note_hint" />
+
+    <CheckBox
+        android:id="@+id/reimbursable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/note"
+        android:button="@drawable/ic_add_record_reimbursable" />
+
+    <CheckBox
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/note"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@id/reimbursable"
+        android:button="@drawable/ic_add_record_location" />
+
+    <ImageButton
+        android:id="@+id/photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/note"
+        android:background="@drawable/ic_add_record_photos" />
+
+</RelativeLayout>

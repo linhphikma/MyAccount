@@ -4,8 +4,20 @@
     <string name="app_name">麦本</string>
     <string name="action_settings">设置</string>
     <string name="action_add">添加</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
     
     <string name="msg_loading">载入中&#8230;</string>
     <string name="msg_no_details">无记录</string>
-
+    <string name="msg_input">请输入&#8230;</string>
+    <string name="msg_input_date">请选择日期</string>
+    
+    <string name="title_activity_record_detail">账单详情</string>
+    
+    <string name="add_record_title">新增账务</string>
+    <string name="add_record_note_hint">备注</string>
+    <string name="add_record_reimbursable_hint">是否可报销?</string>
+    <string name="add_record_location_hint">记录你的位置.</string>
+    
+    <string name="show_record_title">显示账务</string>
 </resources>

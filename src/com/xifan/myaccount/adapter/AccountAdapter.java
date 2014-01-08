@@ -2,6 +2,7 @@
 package com.xifan.myaccount.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,23 +12,30 @@ import android.widget.TextView;
 
 import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.AccountDetail;
+import com.xifan.myaccount.data.SmartType;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 public class AccountAdapter extends BaseAdapter {
 
     private List<AccountDetail> list;
     private LayoutInflater mInflater;
+    private Context mContext;
+
+    private List<String> typeNames;
 
     public AccountAdapter(Context context) {
+        mContext = context;
         mInflater = LayoutInflater.from(context);
+        SmartType type = new SmartType(context);
+        typeNames = type.getTypeName();
     }
 
     public AccountAdapter(Context context, List<AccountDetail> list) {
+        mContext = context;
         mInflater = LayoutInflater.from(context);
+        SmartType type = new SmartType(context);
+        typeNames = type.getTypeName();
         this.list = list;
     }
 
@@ -60,15 +68,13 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
-        holder.typeText.setText(list.get(position).getmType());
-        holder.dateText.setText(list.get(position).getmDate());
-        holder.moneyText.setText(String.valueOf(list.get(position).getmMoney()));
-        if (list.get(position).getmPicUri() == null) {
+        holder.typeText.setText(typeNames.get(list.get(position).getRecordType()));
+        holder.dateText.setText(list.get(position).getOnlyDate());
+        holder.moneyText.setText(list.get(position).getMoney());
+        if (list.get(position).getPicUri() == null) {
             holder.imgIcon.setVisibility(View.VISIBLE);
             holder.imgIcon.setImageResource(R.drawable.ic_img);
         }
-        System.out.println(list.get(position).getFullDate());
-        System.out.println(list.get(position).getOnlyDate());
 
         return view;
     }

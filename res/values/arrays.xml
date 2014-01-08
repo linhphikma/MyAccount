@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="record_operate_type">
+        <item>expend</item>
+        <item>revenue</item>
+        <item>transffer</item>
+    </string-array>
+</resources>

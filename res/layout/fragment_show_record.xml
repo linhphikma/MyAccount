@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/show_record"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- Background -->
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <!-- Blank -->
+
+    <RelativeLayout
+        android:id="@+id/details_blank"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/details" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="点击添加图片"
+            android:textColor="@color/dark_gray" />
+    </RelativeLayout>
+
+    <!-- Bottom Block -->
+
+    <RelativeLayout
+        android:id="@+id/details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/activity_margin"
+        android:background="@color/detail_backcolor"
+        android:paddingBottom="30dp"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingTop="10dp" >
+
+        <RelativeLayout
+            android:id="@+id/details_head"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp" >
+
+            <com.xifan.myaccount.widget.MoneyView
+                android:id="@+id/details_money"
+                style="@style/DetailHeaderMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/common_height"
+                android:clickable="true"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:text="12.5" />
+
+            <TextView
+                android:id="@+id/details_date"
+                style="@style/DetailHeaderDate"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/common_height"
+                android:layout_alignBottom="@id/details_money"
+                android:layout_alignParentRight="true"
+                android:clickable="true"
+                android:gravity="bottom"
+                android:onClick="onClick"
+                android:text="2011-11-11 23:00" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_below="@id/details_date"
+                android:background="@color/white" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/details_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/details_head"
+            android:layout_marginStart="5dp" >
+
+            <TextView
+                android:id="@+id/details_type"
+                style="@style/DetailInfoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:text="午餐" />
+
+            <TextView
+                android:id="@+id/details_location"
+                style="@style/DetailInfoText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginEnd="5dp"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:text="重庆文理学院" />
+
+            <TextView
+                android:id="@+id/details_note"
+                style="@style/DetailNoteText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/details_type"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:text="牛肉套餐" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
