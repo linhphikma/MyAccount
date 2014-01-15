@@ -59,6 +59,7 @@ public class MainActivity extends SwipeBackActivity {
                 // TODO go to item detail
                 Intent intent = new Intent(mContext, RecordDetail.class);
                 intent.putExtra("type", RecordDetail.REQUEST_SHOW_RECORD);
+                intent.putExtra("detail", mDetailList.get(position));
                 startActivity(intent);
             }
         });
@@ -119,6 +120,7 @@ public class MainActivity extends SwipeBackActivity {
                     mDetailList.clear();
                     while (c.moveToNext()) {
                         AccountDetail detail = new AccountDetail();
+                        detail.setId(c.getInt(c.getColumnIndex("id")));
                         detail.setAccountId(c.getInt(c.getColumnIndex("accountId")));
                         detail.setDate(c.getString(c.getColumnIndex("recordDate")));
                         detail.setLocation(c.getString(c.getColumnIndex("location")));

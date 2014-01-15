@@ -35,7 +35,7 @@ public class MoneyView extends TextView {
         if ("".equals(text))
             super.setText("￥0.00", type);
         else {
-            DecimalFormat df = new DecimalFormat("￥###,###.00");
+            DecimalFormat df = new DecimalFormat("￥###,##0.00");
             super.setText(df.format(Double.valueOf(text.toString())), type);
         }
     }

@@ -20,5 +20,6 @@
     <string name="add_record_location_hint">Mark your location.</string>
     
     <string name="show_record_title">Show Record</string>
+    <string name="show_record_add_pic">Tap to add a picture</string>
 
 </resources>

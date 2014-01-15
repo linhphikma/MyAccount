@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -45,7 +46,7 @@ import java.util.Locale;
 
 public class AddRecord extends Fragment implements OnClickListener, OnCancelListener,
         android.content.DialogInterface.OnClickListener {
-    // 摇一摇
+    // TODO 摇一摇
 
     private LayoutInflater mInflater;
     private Context mContext;
@@ -239,7 +240,8 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
         AccountDetail detail = new AccountDetail();
         detail.setAccountId(Account.defaultId);
         detail.setDate(dateFomatter.format(mCalendar.getTime()));
-        detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")));
+        detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")
+                .replace(",", "")));
         detail.setNote(noteText.getText().toString());
         detail.setPicUri("");
         detail.setRecordType(typeSpinner.getSelectedItemPosition());

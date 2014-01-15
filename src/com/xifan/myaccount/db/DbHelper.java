@@ -12,6 +12,10 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "account.db"; // 数据库名称
     public static final int version = 1; // 数据库版本
+    
+    public static final String DB_TABLE_DETAIL = "detail";
+    public static final String DB_TABLE_ACCOUNT = "account";
+    public static final String DB_TABLE_TYPE = "record_type";
 
     public DbHelper(Context context, String name, CursorFactory factory, int version) {
         super(context, name, factory, version);
