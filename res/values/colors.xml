@@ -5,4 +5,5 @@
     <color name="dark_gray">#80000000</color>
     <color name="disabled">#80000000</color>
     <color name="detail_backcolor">#80000000</color>
+    <color name="transparent">#00ffffff</color>
 </resources>

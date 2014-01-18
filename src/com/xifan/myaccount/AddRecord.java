@@ -229,8 +229,9 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getTitle().equals("confirm")) {
-            Log.e("xifan", "click");
             submit();
+        } else if (item.getItemId()==android.R.id.home) {
+            getActivity().finish();
         }
         return super.onOptionsItemSelected(item);
     }

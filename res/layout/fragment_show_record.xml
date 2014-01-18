@@ -10,8 +10,7 @@
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-         />
+        android:scaleType="centerCrop" />
 
     <!-- Blank -->
 
@@ -22,6 +21,7 @@
         android:layout_above="@+id/details" >
 
         <TextView
+            android:id="@+id/details_add_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -83,13 +83,13 @@
             android:layout_below="@id/details_head"
             android:layout_marginStart="5dp" >
 
-            <TextView
+            <Spinner
                 android:id="@+id/details_type"
-                style="@style/DetailInfoText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:onClick="onClick" />
+                android:background="@color/transparent"
+                android:gravity="top|center_vertical"
+                android:spinnerMode="dialog" />
 
             <TextView
                 android:id="@+id/details_location"
@@ -104,7 +104,7 @@
             <TextView
                 android:id="@+id/details_note"
                 style="@style/DetailNoteText"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/details_type"
                 android:clickable="true"

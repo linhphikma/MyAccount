@@ -82,7 +82,7 @@ public class MainActivity extends SwipeBackActivity {
             case R.id.menu_add:
                 Intent intent = new Intent(mContext, RecordDetail.class);
                 intent.putExtra("type", RecordDetail.REQUEST_ADD_RECORD);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, 1);break;
         }
         return super.onOptionsItemSelected(item);
     }

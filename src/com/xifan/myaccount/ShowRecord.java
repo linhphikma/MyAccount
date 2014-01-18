@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,16 +22,23 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +49,6 @@ import com.xifan.myaccount.widget.MoneyView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -57,22 +62,24 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
     private MoneyView moneyView;
     private TextView dateText;
-    private TextView typeText;
+    private Spinner typeSpinner;
     private TextView locationText;
     private TextView noteText;
     private RelativeLayout bgBlank;
     private ImageView bgView;
     private EditText inputText;
+    private TextView tipText;
+    private MenuItem confirmButton;
 
     private AccountDetail mDetail;
 
     private int clickItem;
     private File picUri;
     private File picPath;
+    private Uri albumPicUri;
 
     private static final int INDEX_MONEY = 1;
     private static final int INDEX_DATE = 2;
-    private static final int INDEX_TYPE = 3;
     private static final int INDEX_LOC = 4;
     private static final int INDEX_NOTE = 5;
 
@@ -81,29 +88,34 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
     private static final String TAG = "MaiBen";
 
+    private boolean hasChanges = false;
+
+    private boolean firstRun = true;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mInflater = inflater;
         View view = mInflater.inflate(R.layout.fragment_show_record, container);
         moneyView = (MoneyView) view.findViewById(R.id.details_money);
         dateText = (TextView) view.findViewById(R.id.details_date);
-        typeText = (TextView) view.findViewById(R.id.details_type);
+        typeSpinner = (Spinner) view.findViewById(R.id.details_type);
         locationText = (TextView) view.findViewById(R.id.details_location);
         noteText = (TextView) view.findViewById(R.id.details_note);
         bgView = (ImageView) view.findViewById(R.id.background);
         bgBlank = (RelativeLayout) view.findViewById(R.id.details_blank);
+        tipText = (TextView) view.findViewById(R.id.details_add_tip);
 
         moneyView.setText(mDetail.getMoney());
         dateText.setText(mDetail.getDate());
-        typeText.setText(new SmartType(mContext).getTypeName().get(mDetail.getRecordType()));
+        typeSpinner.setAdapter(new ArrayAdapter<String>(mContext, R.layout.type_spinner_view,
+                new SmartType(mContext).getTypeName()));
         locationText.setText(mDetail.getLocation());
         noteText.setText(mDetail.getNote());
 
-        picUri = new File(mDetail.getPicUri()); // get image
-        if (picUri != null) {
+        if (mDetail.getPicUri() != null) {
             try {
                 bgView.setImageBitmap(BitmapFactory.decodeStream(mContext.getContentResolver()
-                        .openInputStream(Uri.fromFile(picUri)), null, null));
+                        .openInputStream(Uri.parse(mDetail.getPicUri()))));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Log.w(TAG, "img is not from album,attempt to read from camera");
@@ -113,11 +125,63 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
         moneyView.setOnClickListener(this);
         dateText.setOnClickListener(this);
-        typeText.setOnClickListener(this);
         locationText.setOnClickListener(this);
         noteText.setOnClickListener(this);
-        bgBlank.setOnClickListener(this);
+        bgBlank.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                new AlertDialog.Builder(mContext)
+                        .setTitle(getResources().getString(R.string.show_record_choose_pic_source))
+                        .setItems(getResources().getStringArray(R.array.choose_pic_source),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (which == SELECT_PICTURE) {
+                                            Intent intent = new Intent(
+                                                    Intent.ACTION_PICK,
+                                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                            startActivityForResult(intent, SELECT_PICTURE);
+                                        } else {
+                                            Intent intent = new Intent(
+                                                    MediaStore.ACTION_IMAGE_CAPTURE);
+                                            SimpleDateFormat sdf = new SimpleDateFormat(
+                                                    "yyyyMMddHHmm",
+                                                    Locale
+                                                            .getDefault());
+                                            picUri = new File(picPath + File.separator
+                                                    + sdf.format(Calendar.getInstance().getTime())
+                                                    + "-date.jpg"); // Pre set
+                                                                    // the
+                                                                    // uri for
+                                                                    // storage.
+                                            Uri imageUri = Uri.fromFile(picUri);
+                                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                                            startActivityForResult(intent, SELECT_CAMERA);
+                                        }
+                                    }
+                                }).show();
+                return true;
+            }
+        });
+        typeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int
+                    position, long id) {
+                if (!firstRun) {
+                    notifyRecordChanges(true);
+                } else {
+                    firstRun = false;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        typeSpinner.setSelection(mDetail.getRecordType(), true);
+
+        tipText.setVisibility(bgView.getDrawable() == null ? View.VISIBLE : View.GONE);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -140,16 +204,19 @@ public class ShowRecord extends Fragment implements OnClickListener,
     @Override
     public void onClick(View v) {
         if (v instanceof TextView) {
+            String title = getResources().getString(R.string.msg_edit);
             if (v == moneyView) {
                 clickItem = INDEX_MONEY;
+                title += getResources().getString(R.string.money);
             } else if (v == dateText) {
                 clickItem = INDEX_DATE;
-            } else if (v == typeText) {
-                clickItem = INDEX_TYPE;
+                title += getResources().getString(R.string.date);
             } else if (v == locationText) {
                 clickItem = INDEX_LOC;
+                title += getResources().getString(R.string.location);
             } else if (v == noteText) {
                 clickItem = INDEX_NOTE;
+                title += getResources().getString(R.string.note);
             }
 
             inputText = new EditText(mContext);
@@ -166,53 +233,24 @@ public class ShowRecord extends Fragment implements OnClickListener,
             inputText.setLayoutParams(param);
 
             new AlertDialog.Builder(mContext)
-                    .setTitle(getResources().getString(R.string.msg_input))
+                    .setTitle(title)
                     .setView(layout)
                     .setPositiveButton(getResources().getString(R.string.ok), this)
                     .setNegativeButton(getResources().getString(R.string.cancel), this).show();
-        } else if (v instanceof RelativeLayout) {
-            CharSequence[] items = {
-                    "相机", "相册"
-            };
-            new AlertDialog.Builder(mContext)
-                    .setTitle("选择图片来源")
-                    .setItems(items, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == SELECT_PICTURE) {
-                                Intent intent = new Intent(
-                                        Intent.ACTION_PICK,
-                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                startActivityForResult(intent, SELECT_PICTURE);
-                            } else {
-                                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm", Locale
-                                        .getDefault());
-                                picUri = new File(picPath + File.separator
-                                        + sdf.format(Calendar.getInstance().getTime())
-                                        + "-date.jpg");
-                                Uri imageUri = Uri.fromFile(picUri);
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                                startActivityForResult(intent, SELECT_CAMERA);
-                            }
-                        }
-                    }).show();
         }
-
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == Dialog.BUTTON_POSITIVE) {
             switch (clickItem) {
+                case 0:
+                    writeToDb();
                 case 1:
                     moneyView.setText(inputText.getText());
                     break;
                 case 2:
                     dateText.setText(inputText.getText());
-                    break;
-                case 3:
-                    typeText.setText(inputText.getText());
                     break;
                 case 4:
                     locationText.setText(inputText.getText());
@@ -221,8 +259,14 @@ public class ShowRecord extends Fragment implements OnClickListener,
                     noteText.setText(inputText.getText());
                     break;
             }
+            notifyRecordChanges(true);
         }
 
+    }
+
+    protected void notifyRecordChanges(boolean haschanges) {
+        hasChanges = haschanges;
+        getActivity().invalidateOptionsMenu();
     }
 
     @Override
@@ -241,7 +285,7 @@ public class ShowRecord extends Fragment implements OnClickListener,
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
-                picUri = new File(data.getData()+""); // TODO need fix
+                albumPicUri = data.getData();
                 bgView.setImageBitmap(bmp);
             } else if (requestCode == SELECT_CAMERA) {
                 if (bmp != null)
@@ -251,28 +295,64 @@ public class ShowRecord extends Fragment implements OnClickListener,
                         true);
                 bgView.setImageBitmap(bmp);
             }
+            notifyRecordChanges(true);
+            tipText.setVisibility(bgView.getDrawable() == null ? View.VISIBLE : View.GONE);
         } else {
-            Toast.makeText(mContext, "请重新选择图片", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext,
+                    getResources().getString(R.string.show_record_choose_pic_failed),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        confirmButton = menu.add("confirm");
+        confirmButton.setIcon(R.drawable.ic_add_record_confirm)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if (!hasChanges) {
+            menu.removeItem(confirmButton.getItemId());
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (bmp != null) {
-                    DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
-                            DbHelper.version);
-                    SQLiteDatabase db = helper.getWritableDatabase();
-                    ContentValues cv = new ContentValues();
-                    cv.put("picUri", picUri.getPath());
-                    db.update("detail", cv, "id=?", new String[] {
-                            String.valueOf(mDetail.getId())
-                    });
-                }
-                getActivity().finish();
-                break;
+        if (item.getItemId() == android.R.id.home)
+            getActivity().finish();
+        else if (item.getItemId() == confirmButton.getItemId()) {
+            writeToDb();
+            notifyRecordChanges(false);
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    @Override
+    public void onDestroyView() {
+        if (hasChanges) {
+            TextView tv = new TextView(mContext);
+            tv.setText(getResources().getString(R.string.show_record_changes_alert));
+            new AlertDialog.Builder(mContext)
+                    .setTitle(getResources().getString(R.string.attention))
+                    .setView(tv)
+                    .setPositiveButton(getResources().getString(R.string.ok), this)
+                    .setNegativeButton(getResources().getString(R.string.cancel), this).show();
+            clickItem = 0;
+        }
+        super.onDestroyView();
+    }
+
+    private void writeToDb() {
+        if (bmp != null) {
+            DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
+                    DbHelper.version);
+            SQLiteDatabase db = helper.getWritableDatabase();
+            ContentValues cv = new ContentValues();
+            cv.put("picUri",
+                    albumPicUri == null ? picUri.getPath() : albumPicUri.toString());
+            db.update("detail", cv, "id=?", new String[] {
+                    String.valueOf(mDetail.getId())
+            });
+        }
+    }
+
 }

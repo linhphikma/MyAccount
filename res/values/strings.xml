@@ -6,11 +6,18 @@
     <string name="action_add">Add</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="attention">Attention</string>
     
     <string name="msg_loading">Loading&#8230;</string>
     <string name="msg_no_details">No Details</string>
-    <string name="msg_input">Please input&#8230;</string>
+    <string name="msg_input">Please input</string>
     <string name="msg_input_date">Please select date</string>
+    
+    <string name="money">money amount</string>
+    <string name="date">datetime</string>
+    <string name="type">record type</string>
+    <string name="location">location</string>
+    <string name="note">note</string>
     
     <string name="title_activity_record_detail">RecordDetail</string>
     
@@ -21,5 +28,8 @@
     
     <string name="show_record_title">Show Record</string>
     <string name="show_record_add_pic">Tap to add a picture</string>
+    <string name="show_record_choose_pic_source">Choose pic from&#8230;</string>
+    <string name="show_record_choose_pic_failed">No pic selected</string>
+    <string name="show_record_changes_alert">You have changed your record,do you want to save changes?</string>
 
 </resources>
