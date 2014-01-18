@@ -28,7 +28,7 @@
     <string name="add_record_location_hint">记录你的位置.</string>
     
     <string name="show_record_title">显示账务</string>
-    <string name="show_record_add_pic">点击添加图片</string>
+    <string name="show_record_add_pic">长按添加图片</string>
     <string name="show_record_choose_pic_source">选择图片来源</string>
     <string name="show_record_choose_pic_failed">未选择图片</string>
     <string name="show_record_changes_alert">检测到你对账单做出了修改，是否保存？</string>

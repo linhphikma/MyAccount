@@ -244,11 +244,11 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
         detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")
                 .replace(",", "")));
         detail.setNote(noteText.getText().toString());
-        detail.setPicUri("");
+        detail.setPicUri(""); //TODO pic
         detail.setRecordType(typeSpinner.getSelectedItemPosition());
         detail.setReimbursabled(reimbursabledBox.isChecked() ? 1 : 0);
         if (locationBox.isChecked()) {
-            detail.setLocation("重庆文理学院");
+            detail.setLocation("重庆文理学院"); // TODO location
         }
 
         DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,

@@ -114,12 +114,13 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
         if (mDetail.getPicUri() != null) {
             try {
-                bgView.setImageBitmap(BitmapFactory.decodeStream(mContext.getContentResolver()
-                        .openInputStream(Uri.parse(mDetail.getPicUri()))));
+                bmp = BitmapFactory.decodeStream(mContext.getContentResolver()
+                        .openInputStream(Uri.parse(mDetail.getPicUri())));
+                bgView.setImageBitmap(bmp);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Log.w(TAG, "img is not from album,attempt to read from camera");
-                bgView.setBackground(Drawable.createFromPath(mDetail.getPicUri()));
+                // gView.setBackground(Drawable.createFromPath(mDetail.getPicUri()));
             }
         }
 
@@ -246,6 +247,7 @@ public class ShowRecord extends Fragment implements OnClickListener,
             switch (clickItem) {
                 case 0:
                     writeToDb();
+                    getActivity().finish();
                 case 1:
                     moneyView.setText(inputText.getText());
                     break;
@@ -260,6 +262,10 @@ public class ShowRecord extends Fragment implements OnClickListener,
                     break;
             }
             notifyRecordChanges(true);
+        } else if (which == Dialog.BUTTON_POSITIVE) {
+            if (clickItem == 0) {
+                getActivity().finish();
+            }
         }
 
     }
@@ -317,42 +323,41 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)
-            getActivity().finish();
-        else if (item.getItemId() == confirmButton.getItemId()) {
+        if (item.getItemId() == android.R.id.home) {
+            if (hasChanges) {
+                TextView tv = new TextView(mContext);
+                tv.setText(getResources().getString(R.string.show_record_changes_alert));
+                new AlertDialog.Builder(mContext)
+                        .setTitle(getResources().getString(R.string.attention))
+                        .setView(tv)
+                        .setPositiveButton(getResources().getString(R.string.ok), this)
+                        .setNegativeButton(getResources().getString(R.string.cancel), this).show();
+                clickItem = 0;
+            }
+        } else if (item.getItemId() == confirmButton.getItemId()) {
             writeToDb();
             notifyRecordChanges(false);
         }
         return super.onOptionsItemSelected(item);
     }
-    
-    @Override
-    public void onDestroyView() {
-        if (hasChanges) {
-            TextView tv = new TextView(mContext);
-            tv.setText(getResources().getString(R.string.show_record_changes_alert));
-            new AlertDialog.Builder(mContext)
-                    .setTitle(getResources().getString(R.string.attention))
-                    .setView(tv)
-                    .setPositiveButton(getResources().getString(R.string.ok), this)
-                    .setNegativeButton(getResources().getString(R.string.cancel), this).show();
-            clickItem = 0;
-        }
-        super.onDestroyView();
-    }
 
     private void writeToDb() {
-        if (bmp != null) {
-            DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
-                    DbHelper.version);
-            SQLiteDatabase db = helper.getWritableDatabase();
-            ContentValues cv = new ContentValues();
+        DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
+                DbHelper.version);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        if (bmp != null)
             cv.put("picUri",
                     albumPicUri == null ? picUri.getPath() : albumPicUri.toString());
-            db.update("detail", cv, "id=?", new String[] {
-                    String.valueOf(mDetail.getId())
-            });
-        }
+        cv.put("recordType", typeSpinner.getSelectedItemPosition());
+        cv.put("moneyAmount", Float.valueOf(moneyView.getText().toString().replace("￥", "")
+                .replace(",", "")));
+        cv.put("recordDate", dateText.getText().toString());
+        cv.put("note", noteText.getText().toString());
+
+        db.update("detail", cv, "id=?", new String[] {
+                String.valueOf(mDetail.getId())
+        });
     }
 
 }

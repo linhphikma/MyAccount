@@ -27,7 +27,7 @@
     <string name="add_record_location_hint">Mark your location.</string>
     
     <string name="show_record_title">Show Record</string>
-    <string name="show_record_add_pic">Tap to add a picture</string>
+    <string name="show_record_add_pic">Long tap to add a picture</string>
     <string name="show_record_choose_pic_source">Choose pic from&#8230;</string>
     <string name="show_record_choose_pic_failed">No pic selected</string>
     <string name="show_record_changes_alert">You have changed your record,do you want to save changes?</string>

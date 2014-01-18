@@ -4,12 +4,8 @@ package com.xifan.myaccount;
 import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
-import android.widget.ImageView;
 
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
