@@ -3,12 +3,13 @@ package com.xifan.myaccount.data;
 
 public class Account {
     
-    public static final int defaultId = 1;
+    public static int currentAccountId = 1;
+    public static int currentAccountType = 1;
     
     private int accountType;
-    private int balance;
-    private int expend;
-    private int revenue;
+    private float balance;
+    private float expend;
+    private float revenue;
     private int id;
 
     public int getAccountType() {
@@ -19,27 +20,27 @@ public class Account {
         this.accountType = accountType;
     }
 
-    public int getBalance() {
+    public float getBalance() {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public void setBalance(float balance) {
         this.balance = balance;
     }
 
-    public int getExpend() {
+    public float getExpend() {
         return expend;
     }
 
-    public void setExpend(int expend) {
+    public void setExpend(float expend) {
         this.expend = expend;
     }
 
-    public int getRevenue() {
+    public float getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(int revenue) {
+    public void setRevenue(float revenue) {
         this.revenue = revenue;
     }
 

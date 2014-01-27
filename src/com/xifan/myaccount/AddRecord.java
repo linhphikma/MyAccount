@@ -4,9 +4,11 @@ package com.xifan.myaccount;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -230,7 +232,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getTitle().equals("confirm")) {
             submit();
-        } else if (item.getItemId()==android.R.id.home) {
+        } else if (item.getItemId() == android.R.id.home) {
             getActivity().finish();
         }
         return super.onOptionsItemSelected(item);
@@ -239,12 +241,12 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     private void submit() {
 
         AccountDetail detail = new AccountDetail();
-        detail.setAccountId(Account.defaultId);
+        detail.setAccountId(Account.currentAccountId);
         detail.setDate(dateFomatter.format(mCalendar.getTime()));
         detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")
                 .replace(",", "")));
         detail.setNote(noteText.getText().toString());
-        detail.setPicUri(""); //TODO pic
+        detail.setPicUri(""); // TODO pic
         detail.setRecordType(typeSpinner.getSelectedItemPosition());
         detail.setReimbursabled(reimbursabledBox.isChecked() ? 1 : 0);
         if (locationBox.isChecked()) {
@@ -255,8 +257,9 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                 DbHelper.version);
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            db.execSQL("insert into detail values(null,?,?,?,?,?,?,?,?);", new Object[] {
+            db.execSQL("insert into detail values(null,?,?,?,?,?,?,?,?,?);", new Object[] {
                     detail.getAccountId(),
+                    operateTypeSpinner.getSelectedItemPosition(),
                     detail.getRecordType(),
                     detail.getMoney(),
                     detail.getPicUri(),
@@ -264,6 +267,30 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                     detail.getLocation(),
                     detail.getNote(),
                     detail.isReimbursabled()
+            });
+            
+            Account account = new Account();
+            Cursor c = db.rawQuery("select * from account where id=?", new String[] {
+                String.valueOf(Account.currentAccountId)
+            });
+            while (c.moveToNext()) {
+                account.setBalance(c.getFloat(c.getColumnIndex("balance")));
+                account.setExpend(c.getFloat(c.getColumnIndex("expend")));
+                account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
+            }
+            ContentValues cv = new ContentValues();
+            float money = Float.valueOf(detail.getMoney());
+            if (operateTypeSpinner.getSelectedItemPosition() == 0) {
+                // 支出
+                cv.put("expend", account.getExpend() + money);
+                cv.put("balance", account.getBalance() - money);
+            } else if (operateTypeSpinner.getSelectedItemPosition() == 1) {
+                cv.put("revenu", account.getRevenue() + money);
+                cv.put("balance", account.getBalance() + money);
+            }
+
+            db.update("account", cv, "id=?", new String[] {
+                String.valueOf(Account.currentAccountId)
             });
         } catch (Exception e) {
         }

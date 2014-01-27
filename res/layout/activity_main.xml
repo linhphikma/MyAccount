@@ -16,9 +16,81 @@
         android:id="@+id/account_detail_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="48dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
-    
+        android:layout_marginRight="5dp"
+        android:scrollbars="none"
+        android:smoothScrollbar="true" />
+
+    <!-- Floating Bar -->
+
+    <LinearLayout
+        android:id="@+id/floating_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_height"
+        android:layout_alignParentBottom="true"
+        android:background="@color/floating_bar_transparent"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="0.3"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/account_expend_of_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/floating_bar_expend" />
+
+            <TextView
+                android:id="@+id/account_expend_of_month_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/account_revenue_of_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/floating_bar_revenue" />
+
+            <TextView
+                android:id="@+id/account_revenue_of_month_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="0.4"
+            android:gravity="right"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/account_total_of_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/floating_bar_total"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/account_total_of_month_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="28sp" />
+        </LinearLayout>
+    </LinearLayout>
 
 </RelativeLayout>

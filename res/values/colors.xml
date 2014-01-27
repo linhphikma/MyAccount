@@ -2,6 +2,7 @@
 <resources>
     <color name="white">#ffffffff</color>
     <color name="gray">#ffdddddd</color>
+    <color name="floating_bar_transparent">#eeffffff</color>
     <color name="dark_gray">#80000000</color>
     <color name="disabled">#80000000</color>
     <color name="detail_backcolor">#80000000</color>

@@ -4,9 +4,12 @@
     <string name="app_name">麦本</string>
     <string name="action_settings">设置</string>
     <string name="action_add">添加</string>
+    <string name="action_account_manage">账户管理</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="attention">提示</string>
+    <string name="enable">启用</string>
+    <string name="disable">禁用</string>
     
     <string name="msg_loading">载入中&#8230;</string>
     <string name="msg_no_details">无记录</string>
@@ -20,6 +23,10 @@
     <string name="location">位置信息</string>
     <string name="note">备注</string>
     
+    <string name="floating_bar_expend">支出:</string>
+    <string name="floating_bar_revenue">收入:</string>
+    <string name="floating_bar_total">总计:</string>
+    
     <string name="title_activity_record_detail">账单详情</string>
     
     <string name="add_record_title">新增账务</string>
@@ -32,4 +39,10 @@
     <string name="show_record_choose_pic_source">选择图片来源</string>
     <string name="show_record_choose_pic_failed">未选择图片</string>
     <string name="show_record_changes_alert">检测到你对账单做出了修改，是否保存？</string>
+    
+    <string name="title_activity_account_manage">账户管理</string>
+    <string name="pref_account_manage_current">当前账户</string>
+    <string name="pref_account_manage_category_edit">编辑账户</string>
+    <string name="pref_account_manage_add_account">添加账户</string>
+    <string name="pref_account_manage_default_account">默认账户无法禁用或删除</string>
 </resources>

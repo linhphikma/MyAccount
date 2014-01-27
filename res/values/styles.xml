@@ -4,7 +4,6 @@
 
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
     </style>
     
     <style name="Title">

@@ -32,7 +32,7 @@ public class DbHelper extends SQLiteOpenHelper {
             Log.e("xifan", "create table");
             db.execSQL("create table if not exists account_type (id integer primary key autoincrement,typename varchar(20) not null);");
             db.execSQL("create table if not exists account (id integer primary key autoincrement,balance money,revenue money,expend money,accountType integer,foreign key(accountType) references account_type(id));");
-            db.execSQL("create table if not exists detail (id integer primary key autoincrement,accountId integer,recordType varchar(100),moneyAmount money,picUri varchar(200), recordDate datetime,location varchar(100),note varchar(320),isReimbursabled integer,foreign key(accountId) references account(id));");
+            db.execSQL("create table if not exists detail (id integer primary key autoincrement,accountId integer,recordOp integer,recordType varchar(100),moneyAmount money,picUri varchar(200), recordDate datetime,location varchar(100),note varchar(320),isReimbursabled integer,foreign key(accountId) references account(id));");
             db.execSQL("create table if not exists record_type (id integer primary key autoincrement,type varchar(20),last_date datetime,operate_type integer,freq integer,event_stamp varchar(20));");
         } catch (Exception e) {
             e.printStackTrace();
