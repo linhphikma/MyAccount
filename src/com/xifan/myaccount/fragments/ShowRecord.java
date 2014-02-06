@@ -1,5 +1,5 @@
 
-package com.xifan.myaccount;
+package com.xifan.myaccount.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -42,9 +41,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xifan.myaccount.R;
+import com.xifan.myaccount.R.array;
+import com.xifan.myaccount.R.drawable;
+import com.xifan.myaccount.R.id;
+import com.xifan.myaccount.R.layout;
+import com.xifan.myaccount.R.string;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.data.SmartType;
-import com.xifan.myaccount.db.DbHelper;
+import com.xifan.myaccount.util.DbHelper;
 import com.xifan.myaccount.widget.MoneyView;
 
 import java.io.File;

@@ -7,6 +7,9 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.Menu;
 
+import com.xifan.myaccount.fragments.AddRecord;
+import com.xifan.myaccount.fragments.ShowRecord;
+
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
 public class RecordDetail extends SwipeBackActivity {

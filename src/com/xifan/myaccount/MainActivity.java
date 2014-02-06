@@ -25,8 +25,8 @@ import android.widget.TextView;
 import com.xifan.myaccount.adapter.AccountAdapter;
 import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
-import com.xifan.myaccount.data.Keys;
-import com.xifan.myaccount.db.DbHelper;
+import com.xifan.myaccount.fragments.AccountManage;
+import com.xifan.myaccount.util.DbHelper;
 
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
@@ -77,7 +77,7 @@ public class MainActivity extends SwipeBackActivity {
         mCurrentAccount = prefs.getInt("currentAccount", -1);
         if (mCurrentAccount == -1) {
             mCurrentAccount = 1;
-            prefs.edit().putInt("currentAccount", 1).apply();// default use Cash account
+            prefs.edit().putInt("currentAccount", 1).apply(); // default use Cash account
         }
         Account.currentAccountId = mCurrentAccount; // write into global variant
     }
@@ -159,6 +159,7 @@ public class MainActivity extends SwipeBackActivity {
                 break;
             case R.id.action_settings:
                 intent = new Intent(mContext, SettingsActivity.class);
+                intent.putExtra("entry", "settings");
                 startActivity(intent);
                 break;
         }
@@ -252,6 +253,7 @@ public class MainActivity extends SwipeBackActivity {
             revenueText.setText(String.valueOf(mRevenue));
             totalText.setText(String.valueOf(mTotal));
 
+            // init 
             mExpend = 0f;
             mRevenue = 0f;
             mTotal = 0f;

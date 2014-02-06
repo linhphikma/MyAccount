@@ -6,11 +6,20 @@ public class Account {
     public static int currentAccountId = 1;
     public static int currentAccountType = 1;
     
+    private String accountName;
     private int accountType;
-    private float balance;
+    private float total;
     private float expend;
     private float revenue;
     private int id;
+    
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
 
     public int getAccountType() {
         return accountType;
@@ -20,12 +29,12 @@ public class Account {
         this.accountType = accountType;
     }
 
-    public float getBalance() {
-        return balance;
+    public float getTotal() {
+        return total;
     }
 
-    public void setBalance(float balance) {
-        this.balance = balance;
+    public void setTotal(float total) {
+        this.total = total;
     }
 
     public float getExpend() {

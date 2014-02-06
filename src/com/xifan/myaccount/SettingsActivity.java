@@ -4,6 +4,9 @@ package com.xifan.myaccount;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
+import com.xifan.myaccount.fragments.AccountManage;
+import com.xifan.myaccount.fragments.Settings;
+
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
 public class SettingsActivity extends SwipeBackActivity {

@@ -1,5 +1,5 @@
 
-package com.xifan.myaccount;
+package com.xifan.myaccount.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -37,10 +36,16 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
+import com.xifan.myaccount.R;
+import com.xifan.myaccount.R.array;
+import com.xifan.myaccount.R.drawable;
+import com.xifan.myaccount.R.id;
+import com.xifan.myaccount.R.layout;
+import com.xifan.myaccount.R.string;
 import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.data.SmartType;
-import com.xifan.myaccount.db.DbHelper;
+import com.xifan.myaccount.util.DbHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -268,30 +273,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                     detail.getNote(),
                     detail.isReimbursabled()
             });
-            
-            Account account = new Account();
-            Cursor c = db.rawQuery("select * from account where id=?", new String[] {
-                String.valueOf(Account.currentAccountId)
-            });
-            while (c.moveToNext()) {
-                account.setBalance(c.getFloat(c.getColumnIndex("balance")));
-                account.setExpend(c.getFloat(c.getColumnIndex("expend")));
-                account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
-            }
-            ContentValues cv = new ContentValues();
-            float money = Float.valueOf(detail.getMoney());
-            if (operateTypeSpinner.getSelectedItemPosition() == 0) {
-                // 支出
-                cv.put("expend", account.getExpend() + money);
-                cv.put("balance", account.getBalance() - money);
-            } else if (operateTypeSpinner.getSelectedItemPosition() == 1) {
-                cv.put("revenu", account.getRevenue() + money);
-                cv.put("balance", account.getBalance() + money);
-            }
-
-            db.update("account", cv, "id=?", new String[] {
-                String.valueOf(Account.currentAccountId)
-            });
+            helper.syncAccount(db, detail.getMoney(), operateTypeSpinner.getSelectedItemPosition());
         } catch (Exception e) {
         }
         Log.e("xifan", "done");

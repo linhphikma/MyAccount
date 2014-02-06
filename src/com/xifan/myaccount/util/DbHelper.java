@@ -1,21 +1,30 @@
 
-package com.xifan.myaccount.db;
+package com.xifan.myaccount.util;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.xifan.myaccount.data.Account;
+import com.xifan.myaccount.data.AccountDetail;
+
+import java.util.List;
+
 public class DbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "account.db"; // 数据库名称
     public static final int version = 1; // 数据库版本
-    
+
     public static final String DB_TABLE_DETAIL = "detail";
     public static final String DB_TABLE_ACCOUNT = "account";
     public static final String DB_TABLE_TYPE = "record_type";
+    public static final int DB_WRITABLE_FLAG = 1;
+    public static final int DB_READABLE_FLAG = 1;
 
     public DbHelper(Context context, String name, CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -31,7 +40,7 @@ public class DbHelper extends SQLiteOpenHelper {
         try {
             Log.e("xifan", "create table");
             db.execSQL("create table if not exists account_type (id integer primary key autoincrement,typename varchar(20) not null);");
-            db.execSQL("create table if not exists account (id integer primary key autoincrement,balance money,revenue money,expend money,accountType integer,foreign key(accountType) references account_type(id));");
+            db.execSQL("create table if not exists account (id integer primary key autoincrement,total money,revenue money,expend money,accountType integer,accountName varchar(20),foreign key(accountType) references account_type(id));");
             db.execSQL("create table if not exists detail (id integer primary key autoincrement,accountId integer,recordOp integer,recordType varchar(100),moneyAmount money,picUri varchar(200), recordDate datetime,location varchar(100),note varchar(320),isReimbursabled integer,foreign key(accountId) references account(id));");
             db.execSQL("create table if not exists record_type (id integer primary key autoincrement,type varchar(20),last_date datetime,operate_type integer,freq integer,event_stamp varchar(20));");
         } catch (Exception e) {
@@ -44,6 +53,33 @@ public class DbHelper extends SQLiteOpenHelper {
         Log.e("xifan", "upgrade table");
     }
 
+    public void syncAccount(SQLiteDatabase db,String moneyText,int operation){
+        Account account = new Account();
+        Cursor c = db.rawQuery("select * from account where id=?", new String[] {
+            String.valueOf(Account.currentAccountId)
+        });
+        while (c.moveToNext()) {
+            account.setTotal(c.getFloat(c.getColumnIndex("total")));
+            account.setExpend(c.getFloat(c.getColumnIndex("expend")));
+            account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
+        }
+        ContentValues cv = new ContentValues();
+        float money = Float.valueOf(moneyText);
+        if (operation == 0) {
+            // 支出
+            cv.put("expend", account.getExpend() + money);
+            cv.put("total", account.getTotal() - money);
+        } else if (operation == 1) {
+            // 收入
+            cv.put("revenu", account.getRevenue() + money);
+            cv.put("total", account.getTotal() + money);
+        }
+
+        db.update("account", cv, "id=?", new String[] {
+            String.valueOf(Account.currentAccountId)
+        });
+    }
+
     public void initDataBase(SQLiteDatabase db) {
         try {
             Log.e("xifan", "init table");
@@ -51,7 +87,7 @@ public class DbHelper extends SQLiteOpenHelper {
             db.execSQL("insert into account_type values(null,'储蓄卡');");
             db.execSQL("insert into account_type values(null,'信用卡');");
             db.execSQL("insert into account_type values(null,'支付宝');");
-            db.execSQL("insert into account values(null,0,0,0,1);");
+            db.execSQL("insert into account values(null,0,0,0,1,'');");
             db.execSQL("insert into record_type values(null,'早餐',datetime('now','localtime'),1,0,'h7');");
             db.execSQL("insert into record_type values(null,'午餐',datetime('now','localtime'),1,0,'h12');");
             db.execSQL("insert into record_type values(null,'晚餐',datetime('now','localtime'),1,0,'h18');");

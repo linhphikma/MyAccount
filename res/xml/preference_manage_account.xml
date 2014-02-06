@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="manage_screen" >
 
     <ListPreference
         android:key="current_account"
         android:title="@string/pref_account_manage_current" />
 
-    <PreferenceCategory android:title="@string/pref_account_manage_category_edit" >
-        <Preference
-            android:key="defaultAccount"/>
-
+    <PreferenceCategory
+        android:key="edit_category"
+        android:title="@string/pref_account_manage_category_edit" >
+        
+        <Preference android:key="default_account" />
+        
         <Preference
             android:key="add_account"
             android:title="@string/pref_account_manage_add_account" />

@@ -4,16 +4,10 @@ package com.xifan.myaccount.data;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.format.DateFormat;
-import android.util.Log;
 
-import com.xifan.myaccount.db.DbHelper;
+import com.xifan.myaccount.util.DbHelper;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class SmartType {

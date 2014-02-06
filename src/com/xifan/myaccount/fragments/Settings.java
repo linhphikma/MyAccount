@@ -1,4 +1,4 @@
-package com.xifan.myaccount;
+package com.xifan.myaccount.fragments;
 
 import android.preference.PreferenceFragment;
 

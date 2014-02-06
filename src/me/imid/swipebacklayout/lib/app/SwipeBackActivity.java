@@ -1,10 +1,11 @@
 
 package me.imid.swipebacklayout.lib.app;
 
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
 public class SwipeBackActivity extends FragmentActivity implements SwipeBackActivityBase{
     private SwipeBackActivityHelper mHelper;
