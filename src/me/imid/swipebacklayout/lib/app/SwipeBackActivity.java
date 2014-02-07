@@ -7,7 +7,7 @@ import android.view.View;
 
 import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
-public class SwipeBackActivity extends FragmentActivity implements SwipeBackActivityBase{
+public class SwipeBackActivity extends FragmentActivity implements SwipeBackActivityBase {
     private SwipeBackActivityHelper mHelper;
 
     @Override
@@ -30,11 +30,12 @@ public class SwipeBackActivity extends FragmentActivity implements SwipeBackActi
             return mHelper.findViewById(id);
         return v;
     }
-    
+
     @Override
     public SwipeBackLayout getSwipeBackLayout() {
         return mHelper.getSwipeBackLayout();
     }
+
     @Override
     public void setSwipeBackEnable(boolean enable) {
         getSwipeBackLayout().setEnableGesture(enable);

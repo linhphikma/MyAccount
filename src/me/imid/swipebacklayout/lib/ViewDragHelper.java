@@ -21,11 +21,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ScrollerCompat;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.Interpolator;
 
 import java.util.Arrays;
@@ -427,6 +423,19 @@ public class ViewDragHelper {
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity();
         mScroller = ScrollerCompat.create(context, sInterpolator);
+    }
+
+    /**
+     * Sets the sensitivity of the dragger.
+     * 
+     * @param context The application context.
+     * @param sensitivity value between 0 and 1, the final value for touchSlop =
+     *            ViewConfiguration.getScaledTouchSlop * (1 / s);
+     */
+    public void setSensitivity(Context context, float sensitivity) {
+        float s = Math.max(0f, Math.min(1.0f, sensitivity));
+        ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
+        mTouchSlop = (int) (viewConfiguration.getScaledTouchSlop() * (1 / s));
     }
 
     /**
