@@ -22,9 +22,9 @@
     <string name="location">location</string>
     <string name="note">note</string>
     
-    <string name="floating_bar_expend">Expend:</string>
-    <string name="floating_bar_revenue">Revenue:</string>
-    <string name="floating_bar_total">Total:</string>
+    <string name="floating_bar_expend">Monthly Expend:</string>
+    <string name="floating_bar_revenue">Monthly Revenue:</string>
+    <string name="floating_bar_balance">Monthly Balance:</string>
     
     <string name="title_activity_record_detail">Record Detail</string>
     <string name="add_record_title">Add Record</string>
@@ -44,5 +44,6 @@
     <string name="pref_account_manage_category_edit">Edit Account</string>
     <string name="pref_account_manage_add_account">Add Account</string>
     <string name="pref_account_manage_default_account">Default account cannot be disabled or deleted</string>
+    <string name="pref_account_manage_detail_balance">Balance:</string>
 
 </resources>

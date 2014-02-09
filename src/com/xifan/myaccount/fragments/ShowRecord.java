@@ -48,8 +48,8 @@ import com.xifan.myaccount.R.id;
 import com.xifan.myaccount.R.layout;
 import com.xifan.myaccount.R.string;
 import com.xifan.myaccount.data.AccountDetail;
-import com.xifan.myaccount.data.SmartType;
 import com.xifan.myaccount.util.DbHelper;
+import com.xifan.myaccount.util.SmartType;
 import com.xifan.myaccount.widget.MoneyView;
 
 import java.io.File;
@@ -347,9 +347,8 @@ public class ShowRecord extends Fragment implements OnClickListener,
     }
 
     private void writeToDb() {
-        DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
                 DbHelper.version);
-        SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         if (bmp != null)
             cv.put("picUri",
@@ -360,7 +359,7 @@ public class ShowRecord extends Fragment implements OnClickListener,
         cv.put("recordDate", dateText.getText().toString());
         cv.put("note", noteText.getText().toString());
 
-        db.update("detail", cv, "id=?", new String[] {
+        db.doUpdate("detail", cv, "id=?", new String[] {
                 String.valueOf(mDetail.getId())
         });
     }

@@ -20,7 +20,7 @@
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@id/type_spinner"
         android:gravity="center_vertical|right"
-        android:textSize="24sp" />
+        android:textAppearance="@style/Money" />
 
     <Spinner
         android:id="@+id/operate_type_spinner"

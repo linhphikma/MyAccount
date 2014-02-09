@@ -1,7 +1,7 @@
 
 package com.xifan.myaccount.data;
 
-public class DetailType {
+public class TypeInfo {
     private String typeName;
     private String lastDate;
     private int frequency;

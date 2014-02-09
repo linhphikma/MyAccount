@@ -1,43 +1,55 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
-    </style>
+
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light"></style>
 
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowIsTranslucent">true</item>
+        <!-- <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:actionBarStyle">@style/MyActionBar</item> -->
     </style>
-    
+
+    <!-- <style name="MyActionBar" parent="@android:style/Widget.Holo.ActionBar">
+        <item name="android:background">@color/action_bar_background</item>
+    </style> -->
+
     <style name="Title">
         <item name="android:textSize">20sp</item>
     </style>
+
     <style name="Foot">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/disabled</item>
     </style>
+
     <style name="Money">
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="DetailHeaderMoney">
         <item name="android:padding">5dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/detail_header_money_size</item>
     </style>
+
     <style name="DetailHeaderDate">
         <item name="android:padding">5dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/detail_header_date_size</item>
     </style>
+
     <style name="DetailInfoText">
         <item name="android:padding">8dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/detail_info_size</item>
     </style>
+
     <style name="DetailNoteText">
         <item name="android:padding">5dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/detail_note_size</item>
     </style>
-    
+
     <style name="SwipeBackLayout">
         <item name="edge_size">60dip</item>
         <item name="shadow_left">@drawable/shadow_left</item>

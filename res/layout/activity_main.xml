@@ -82,7 +82,7 @@
                 android:id="@+id/account_total_of_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/floating_bar_total"
+                android:text="@string/floating_bar_balance"
                 android:textSize="28sp" />
 
             <TextView

@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.AccountDetail;
-import com.xifan.myaccount.data.SmartType;
+import com.xifan.myaccount.util.SmartType;
 
 import java.util.List;
 

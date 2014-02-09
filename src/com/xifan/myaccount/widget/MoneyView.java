@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.xifan.myaccount.R;
+
 import java.text.DecimalFormat;
 
 public class MoneyView extends TextView {

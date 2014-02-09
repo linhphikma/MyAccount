@@ -44,8 +44,8 @@ import com.xifan.myaccount.R.layout;
 import com.xifan.myaccount.R.string;
 import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
-import com.xifan.myaccount.data.SmartType;
 import com.xifan.myaccount.util.DbHelper;
+import com.xifan.myaccount.util.SmartType;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -258,26 +258,26 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
             detail.setLocation("重庆文理学院"); // TODO location
         }
 
-        DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
                 DbHelper.version);
-        SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            db.execSQL("insert into detail values(null,?,?,?,?,?,?,?,?,?);", new Object[] {
-                    detail.getAccountId(),
-                    operateTypeSpinner.getSelectedItemPosition(),
-                    detail.getRecordType(),
-                    detail.getMoney(),
-                    detail.getPicUri(),
-                    detail.getDate(),
-                    detail.getLocation(),
-                    detail.getNote(),
-                    detail.isReimbursabled()
-            });
-            helper.syncAccount(db, detail.getMoney(), operateTypeSpinner.getSelectedItemPosition());
+            ContentValues cv = new ContentValues();
+            cv.put("accountId", detail.getAccountId());
+            cv.put("recordOp", operateTypeSpinner.getSelectedItemPosition());
+            cv.put("recordType", detail.getRecordType());
+            cv.put("moneyAmount", detail.getMoney());
+            cv.put("picUri", detail.getPicUri());
+            cv.put("recordDate", detail.getDate());
+            cv.put("location", detail.getLocation());
+            cv.put("note", detail.getNote());
+            cv.put("isReimbursabled", detail.isReimbursabled());
+            db.doInsert("detail", cv);
+            db.syncAccount(detail.getMoney(), operateTypeSpinner.getSelectedItemPosition());
+            db.close();
         } catch (Exception e) {
+            e.printStackTrace();
         }
         Log.e("xifan", "done");
-        db.close();
         getActivity().finish();
     }
 

@@ -23,9 +23,9 @@
     <string name="location">位置信息</string>
     <string name="note">备注</string>
     
-    <string name="floating_bar_expend">支出:</string>
-    <string name="floating_bar_revenue">收入:</string>
-    <string name="floating_bar_total">总计:</string>
+    <string name="floating_bar_expend">本月支出:</string>
+    <string name="floating_bar_revenue">本月收入:</string>
+    <string name="floating_bar_balance">差额:</string>
     
     <string name="title_activity_record_detail">账单详情</string>
     
@@ -45,4 +45,5 @@
     <string name="pref_account_manage_category_edit">编辑账户</string>
     <string name="pref_account_manage_add_account">添加账户</string>
     <string name="pref_account_manage_default_account">默认账户无法禁用或删除</string>
+    <string name="pref_account_manage_detail_balance">总余额:</string>
 </resources>

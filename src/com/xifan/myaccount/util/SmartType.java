@@ -1,11 +1,11 @@
 
-package com.xifan.myaccount.data;
+package com.xifan.myaccount.util;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.xifan.myaccount.util.DbHelper;
+import com.xifan.myaccount.data.TypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +14,28 @@ public class SmartType {
 
     private Context mContext;
 
-    List<DetailType> mList = new ArrayList<DetailType>();
-    
+    private List<TypeInfo> mList = new ArrayList<TypeInfo>();
 
     public SmartType(Context context) {
         mContext = context;
     }
 
+    private Cursor getFrequencies() {
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+        Cursor c = null;
+        try {
+            c = db.doQuery("select * from record_type order by freq desc", null);
+            return c;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<String> getTypeName() {
         List<String> typeNameList = new ArrayList<String>();
 
-        Cursor c = readDb();
+        Cursor c = getFrequencies();
         while (c.moveToNext()) {
             typeNameList.add(c.getString(c.getColumnIndex("type")));
         }
@@ -32,13 +43,13 @@ public class SmartType {
     }
 
     public int getMatch() {
-        Cursor c = readDb();
+        Cursor c = getFrequencies();
         int count = -1;
         int mark = -1;
         long lastTime = 0l;
         while (c.moveToNext()) {
             count++;
-            DetailType type = new DetailType();
+            TypeInfo type = new TypeInfo();
             type.setTypeName(c.getString(c.getColumnIndex("type")));
             type.setLastDate(c.getString(c.getColumnIndex("last_date")));
             type.setFrequency(c.getInt(c.getColumnIndex("freq")));
@@ -69,7 +80,7 @@ public class SmartType {
         return 0;
     }
 
-    private void setList(DetailType type) {
+    private void setList(TypeInfo type) {
         if (mList.size() < 1) {
             mList.add(0, type);
         } else {
@@ -78,19 +89,6 @@ public class SmartType {
             } else {
                 mList.add(mList.size(), type);
             }
-        }
-    }
-
-    private Cursor readDb() {
-        SQLiteDatabase db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version)
-                .getReadableDatabase();
-        Cursor c = null;
-        try {
-            c = db.rawQuery("select * from record_type order by freq desc", null);
-            return c;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 }

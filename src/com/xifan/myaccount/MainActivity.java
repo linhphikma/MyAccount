@@ -1,11 +1,11 @@
 
 package com.xifan.myaccount;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,12 +28,11 @@ import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.fragments.AccountManage;
 import com.xifan.myaccount.util.DbHelper;
 
-import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends SwipeBackActivity {
+public class MainActivity extends Activity {
+    // TODO Slide or Tab to switch month
 
     private List<AccountDetail> mDetailList;
     private AccountAdapter mAdapter;
@@ -45,6 +44,8 @@ public class MainActivity extends SwipeBackActivity {
     private TextView expendText;
     private TextView revenueText;
     private TextView totalText;
+
+    private LoadTask mTask;
 
     private float mExpend = 0f;
     private float mRevenue = 0f;
@@ -68,21 +69,12 @@ public class MainActivity extends SwipeBackActivity {
 
         initView();
 
-        LoadTask task = new LoadTask();
-        task.execute(TASK_TYPE_LOAD_LIST);
-    }
-
-    private void loadInfo() {
-        SharedPreferences prefs = getSharedPreferences("pref", 0);
-        mCurrentAccount = prefs.getInt("currentAccount", -1);
-        if (mCurrentAccount == -1) {
-            mCurrentAccount = 1;
-            prefs.edit().putInt("currentAccount", 1).apply(); // default use Cash account
-        }
-        Account.currentAccountId = mCurrentAccount; // write into global variant
+        mTask = new LoadTask();
+        mTask.execute(TASK_TYPE_LOAD_LIST);
     }
 
     private void initView() {
+        // Util.setActionBar(getActionBar(), this, true); // TODO set UI
         mFloatingBar = (LinearLayout) findViewById(R.id.floating_bar);
         mListView = (ListView) findViewById(R.id.account_detail_list);
         msgText = (TextView) findViewById(R.id.message);
@@ -169,13 +161,24 @@ public class MainActivity extends SwipeBackActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        loadInfo();
         if (isFirstRun) {
             isFirstRun = false;
         } else {
             LoadTask task = new LoadTask();
             task.execute(TASK_TYPE_LOAD_LIST);
         }
-        loadInfo();
+    }
+
+    private void loadInfo() {
+        SharedPreferences prefs = getSharedPreferences("pref", 0);
+        mCurrentAccount = prefs.getInt("currentAccount", -1);
+        if (mCurrentAccount == -1) {
+            // default use Cash account
+            mCurrentAccount = 1;
+            prefs.edit().putInt("currentAccount", 1).apply();
+        }
+        Account.currentAccountId = mCurrentAccount; // write into global variant
     }
 
     private class LoadTask extends AsyncTask<String, Void, Void> {
@@ -183,17 +186,14 @@ public class MainActivity extends SwipeBackActivity {
         @Override
         protected Void doInBackground(String... params) {
             if (params[0] == TASK_TYPE_LOAD_LIST) {
-                DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null,
+                DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
                         DbHelper.version);
-                SQLiteDatabase db = helper.getReadableDatabase();
-
                 Cursor c = null;
                 try {
-                    c = db.rawQuery("select * from detail where accountId=" + mCurrentAccount
-                            + " and strftime('%m',recordDate) = strftime('%m','now')",
-                            null);
+                    c = db.doQuery("select * from detail where accountId=" + mCurrentAccount
+                            + " and strftime('%m',recordDate) = strftime('%m','now')", null);
                 } catch (Exception e) {
-                    Log.e("xifan", e.getMessage());
+                    e.printStackTrace();
                     Log.e("xifan", "details not exist,checking if account exist");
                 }
 
@@ -213,28 +213,29 @@ public class MainActivity extends SwipeBackActivity {
                         detail.setReimbursabled(c.getInt(c.getColumnIndex("isReimbursabled")));
                         mDetailList.add(detail);
 
+                        // Count data
                         operate = c.getInt(c.getColumnIndex("recordOp"));
                         if (operate == 0) {
                             mExpend += Float.parseFloat(detail.getMoney());
                         } else if (operate == 1) {
                             mRevenue += Float.parseFloat(detail.getMoney());
                         }
-                        mTotal += Float.parseFloat(detail.getMoney());
-
                     }
+                    mTotal = mRevenue - mExpend;
                     Log.e("xifan", "db read");
                 } else {
                     Log.e("xifan", "data is null");
                     // check if account exist
-                    Cursor c1 = db.query("account", null, null, null, null, null, null);
-                    if (!c1.moveToNext()) {
+                    c = db.doQuery("select * from account", null);
+                    if (!c.moveToNext()) {
                         // doesn't exists
                         Log.e("xifan", "db is null,initializing");
-                        helper.initDataBase(db);
+                        db.initDataBase();
                     }
                 }
                 // bind
                 mAdapter = new AccountAdapter(mContext, mDetailList);
+                db.closeAll(c);
             }
             return null;
         }
@@ -253,12 +254,18 @@ public class MainActivity extends SwipeBackActivity {
             revenueText.setText(String.valueOf(mRevenue));
             totalText.setText(String.valueOf(mTotal));
 
-            // init 
+            // clear
             mExpend = 0f;
             mRevenue = 0f;
             mTotal = 0f;
 
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mTask.cancel(true);
     }
 
 }

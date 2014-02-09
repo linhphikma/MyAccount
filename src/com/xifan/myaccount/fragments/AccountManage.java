@@ -4,7 +4,7 @@ package com.xifan.myaccount.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -14,8 +14,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xifan.myaccount.R;
@@ -23,7 +21,7 @@ import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.util.DbHelper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 
 public class AccountManage extends PreferenceFragment implements OnPreferenceChangeListener {
@@ -33,8 +31,10 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
     private PreferenceCategory mEditCategory;
 
     private List<String> mAccountTypeList;
+    private List<Account> mAccountList;
 
     private Context mContext;
+    private LoadTask mTask;
 
     private int mCurrentAccount;
 
@@ -42,7 +42,9 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preference_manage_account);
+
         mContext = getActivity();
+        mTask = new LoadTask();
         getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
         init();
     }
@@ -51,73 +53,8 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
         mEditCategory = (PreferenceCategory) findPreference("edit_category");
         mAccountPref = (ListPreference) findPreference("current_account");
         mAddAccount = (Preference) findPreference("add_account");
-
         mCurrentAccount = Account.currentAccountId;
-        mAccountTypeList = new ArrayList<String>();
-
-        PreferenceScreen prefScreen = getPreferenceScreen();
-
-        DbHelper helper = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor c = db.rawQuery("select * from account_type", null);
-        while (c.moveToNext()) {
-            mAccountTypeList.add(c.getString(c.getColumnIndex("typename")));
-        } // init accountTypeList
-
-        c = db.rawQuery("select * from account", null);
-        List<Account> accountList = new ArrayList<Account>();
-        while (c.moveToNext()) {
-            Account account = new Account();
-            account.setAccountName(c.getString(c.getColumnIndex("accountName")));
-            account.setAccountType(c.getInt(c.getColumnIndex("accountType")));
-            account.setTotal(c.getInt(c.getColumnIndex("total")));
-            account.setExpend(c.getInt(c.getColumnIndex("expend")));
-            account.setId(c.getInt(c.getColumnIndex("id")));
-            account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
-            accountList.add(account);
-        }
-
-        String[] entries = new String[accountList.size()];
-        String[] entryValues = new String[accountList.size()];
-
-        int currentIndex = 0;
-        for (int i = 0; i < accountList.size(); i++) {
-            String tmpName = accountList.get(i).getAccountName();
-            if (tmpName.equals("")) {
-                entries[i] = mAccountTypeList.get(accountList.get(i).getAccountType() - 1);
-            } else {
-                entries[i] = tmpName;
-            }
-            if (accountList.get(i).getId() == mCurrentAccount)
-                currentIndex = i;
-            entryValues[i] = String.valueOf(i);
-        }
-
-        mAccountPref.setEntries(entries);
-        mAccountPref.setEntryValues(entryValues);
-        mAccountPref.setValueIndex(currentIndex);
-        mAccountPref.setOnPreferenceChangeListener(this);
-
-        int counter = 1;
-        for (Account ac : accountList) {
-            if (ac.getId() == 1) {
-                // Default cash account
-                Preference newPref = findPreference("default_account");
-                newPref.setTitle(mAccountTypeList.get(0));
-                newPref.setSummary(getResources().getString(R.string.floating_bar_total)
-                        + " " + ac.getTotal());
-                mEditCategory.addPreference(newPref);
-            } else {
-                CheckBoxPreference newPref = new CheckBoxPreference(mContext);
-                newPref.setKey("extraAccount" + counter);
-                newPref.setSummary(getResources().getString(R.string.floating_bar_total)
-                        + ac.getTotal());
-                newPref.setChecked(true);
-                newPref.setTitle(ac.getAccountName().equals("") ? mAccountTypeList.get(ac
-                        .getAccountType() - 1) : ac.getAccountName());
-                mEditCategory.addPreference(newPref);
-            }
-        }
+        mTask.execute();
     }
 
     @Override
@@ -145,6 +82,96 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
             }
         }
         return false;
+    }
+
+    public class LoadTask extends AsyncTask<Void, Void, HashMap<String, Object>> {
+
+        @Override
+        protected HashMap<String, Object> doInBackground(Void... params) {
+            mAccountTypeList = new ArrayList<String>();
+            mAccountList = new ArrayList<Account>();
+            DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+            Cursor c = db.doQuery("select * from account_type", null);
+            while (c.moveToNext()) {
+                mAccountTypeList.add(c.getString(c.getColumnIndex("typename")));
+            } // init accountTypeList
+
+            c = db.doQuery("select * from account", null);
+            while (c.moveToNext()) {
+                Account account = new Account();
+                account.setAccountName(c.getString(c.getColumnIndex("accountName")));
+                account.setAccountType(c.getInt(c.getColumnIndex("accountType")));
+                account.setTotal(c.getInt(c.getColumnIndex("total")));
+                account.setExpend(c.getInt(c.getColumnIndex("expend")));
+                account.setId(c.getInt(c.getColumnIndex("id")));
+                account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
+                mAccountList.add(account);
+            }
+
+            String[] entries = new String[mAccountList.size()];
+            String[] entryValues = new String[mAccountList.size()];
+
+            int currentIndex = 0;
+            for (int i = 0; i < mAccountList.size(); i++) {
+                String tmpName = mAccountList.get(i).getAccountName();
+                if (tmpName.equals("")) {
+                    entries[i] = mAccountTypeList.get(mAccountList.get(i).getAccountType() - 1);
+                } else {
+                    entries[i] = tmpName;
+                }
+                if (mAccountList.get(i).getId() == mCurrentAccount)
+                    currentIndex = i;
+                entryValues[i] = String.valueOf(i);
+            }
+            db.closeAll(c);
+
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("Entries", entries);
+            map.put("Values", entryValues);
+            map.put("Index", currentIndex);
+            return map;
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<String, Object> result) {
+            super.onPostExecute(result);
+            mAccountPref.setEntries((String[]) result.get("Entries"));
+            mAccountPref.setEntryValues((String[]) result.get("Values"));
+            mAccountPref.setValueIndex((Integer) result.get("Index"));
+            mAccountPref.setOnPreferenceChangeListener(AccountManage.this);
+
+            int counter = 1;
+            for (Account ac : mAccountList) {
+                if (ac.getId() == 1) {
+                    // Default cash account
+                    Preference newPref = new Preference(mContext);
+                    newPref.setTitle(mAccountTypeList.get(0));
+                    newPref.setSummary(getResources().getString(
+                            R.string.pref_account_manage_detail_balance)
+                            + " " + ac.getTotal());
+                    mEditCategory.addPreference(newPref);
+                    newPref.setOrder(0);
+                } else {
+                    CheckBoxPreference newPref = new CheckBoxPreference(mContext);
+                    newPref.setKey("extraAccount" + counter);
+                    newPref.setSummary(getResources().getString(
+                            R.string.pref_account_manage_detail_balance)
+                            + ac.getTotal());
+                    newPref.setChecked(true);
+                    newPref.setTitle(ac.getAccountName().equals("") ? mAccountTypeList.get(ac
+                            .getAccountType() - 1) : ac.getAccountName());
+                    mEditCategory.addPreference(newPref);
+                }
+            }
+            mAddAccount.setOrder(99);
+        }
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mTask.cancel(true);
     }
 
 }
