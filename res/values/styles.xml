@@ -4,13 +4,22 @@
 
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowIsTranslucent">true</item>
-        <!-- <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:actionBarStyle">@style/MyActionBar</item> -->
+        <!--
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        -->
     </style>
 
-    <!-- <style name="MyActionBar" parent="@android:style/Widget.Holo.ActionBar">
+    <!--
+    <style name="MyActionBar" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@color/action_bar_background</item>
-    </style> -->
+    </style>
+    -->
+
+    <style name="SearchWindow" parent="AppTheme">
+        <item name="android:windowBackground">@color/search_background</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
 
     <style name="Title">
         <item name="android:textSize">20sp</item>
@@ -19,6 +28,17 @@
     <style name="Foot">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/disabled</item>
+    </style>
+
+    <style name="CardLayout">
+        <item name="android:background">@drawable/card_background</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">20dp</item>
     </style>
 
     <style name="Money">

@@ -1,11 +1,13 @@
 
 package com.xifan.myaccount.data;
 
-public class TypeInfo {
+public class TypeInfo{
     private String typeName;
+    private String typePinyin;
     private String lastDate;
     private int frequency;
     private String stamp;
+    private Integer weight;
 
     public String getTypeName() {
         return typeName;
@@ -13,6 +15,14 @@ public class TypeInfo {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public String getTypePinyin() {
+        return typePinyin;
+    }
+
+    public void setTypePinyin(String typePinyin) {
+        this.typePinyin = typePinyin;
     }
 
     public String getLastDate() {
@@ -37,6 +47,14 @@ public class TypeInfo {
 
     public void setStamp(String stamp) {
         this.stamp = stamp;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 
 }

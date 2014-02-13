@@ -3,6 +3,7 @@
 
     <dimen name="activity_margin">16dp</dimen>
     <dimen name="common_height">48dp</dimen>
+    <dimen name="add_item_size">18sp</dimen>
     <dimen name="detail_header_money_size">28sp</dimen>
     <dimen name="detail_header_date_size">16sp</dimen>
     <dimen name="detail_info_size">18sp</dimen>

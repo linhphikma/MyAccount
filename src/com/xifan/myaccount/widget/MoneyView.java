@@ -11,21 +11,16 @@ import java.text.DecimalFormat;
 
 public class MoneyView extends TextView {
 
-    private Context mContext;
-
     public MoneyView(Context context) {
         super(context);
-        mContext = context;
     }
 
     public MoneyView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
     }
 
     public MoneyView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
     }
 
     @Override

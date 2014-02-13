@@ -7,10 +7,13 @@
     <color name="dark_gray">#80000000</color>
     <color name="disabled">#80000000</color>
     <color name="transparent">#00ffffff</color>
+    <color name="stroke">#dddddd</color>
+    <color name="holo_blue">#33b5e5</color>
     
     <!-- Widgets -->
     <color name="detail_backcolor">#80000000</color>
     <color name="floating_bar_transparent">#eeffffff</color>
     <color name="action_bar_background">#ff1688dd</color>
+    <color name="search_background">#bbe1e1e1</color>
 
 </resources>

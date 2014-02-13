@@ -8,8 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
@@ -23,9 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -37,11 +33,7 @@ import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
 import com.xifan.myaccount.R;
-import com.xifan.myaccount.R.array;
-import com.xifan.myaccount.R.drawable;
-import com.xifan.myaccount.R.id;
-import com.xifan.myaccount.R.layout;
-import com.xifan.myaccount.R.string;
+import com.xifan.myaccount.SearchTypeActivity;
 import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.DbHelper;
@@ -60,8 +52,8 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
 
     private CheckBox reimbursabledBox;
     private CheckBox locationBox;
-    private Spinner typeSpinner;
-    private Spinner operateTypeSpinner;
+    private Spinner accountSpinner;
+    private TextView typeTextView;
     private TextView dateTextView;
     private TextView moneyTextView;
     private EditText inputText;
@@ -76,38 +68,22 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
 
     private static final int ITEM_MONEY_VIEW = 1;
     private static final int ITEM_DATE_VIEW = 2;
+    private static final int REQUEST_ACITIVITY_GET_TYPE_CODE = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mInflater = inflater;
         mContext = getActivity();
-        SmartType type = new SmartType(mContext);
         View view = mInflater.inflate(R.layout.fragment_add_record, container);
-        typeSpinner = (Spinner) view.findViewById(R.id.type_spinner);
-        operateTypeSpinner = (Spinner) view.findViewById(R.id.operate_type_spinner);
+        accountSpinner = (Spinner) view.findViewById(R.id.account_spinner);
+        typeTextView = (TextView) view.findViewById(R.id.type);
         dateTextView = (TextView) view.findViewById(R.id.date);
         moneyTextView = (TextView) view.findViewById(R.id.money);
         noteText = (EditText) view.findViewById(R.id.note);
         reimbursabledBox = (CheckBox) view.findViewById(R.id.reimbursable);
         locationBox = (CheckBox) view.findViewById(R.id.location);
 
-        typeSpinner.setAdapter(new ArrayAdapter<String>(mContext, R.layout.type_spinner_view,
-                type.getTypeName()));
-        operateTypeSpinner.setAdapter(new ArrayAdapter<String>(mContext,
-                R.layout.type_spinner_view, getResources().getStringArray(
-                        R.array.record_operate_type)));
-        operateTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setMoneyColor();
-                // TODO 转账界面
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        typeSpinner.setSelection(type.getMatch());
+        typeTextView.setOnClickListener(this);
 
         mCalendar = Calendar
                 .getInstance();
@@ -122,7 +98,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     }
 
     protected void setMoneyColor() {
-        switch (operateTypeSpinner.getSelectedItemPosition()) {
+        switch (accountSpinner.getSelectedItemPosition()) {
             case 0:
                 moneyTextView.setTextColor(Color.RED);
                 break;
@@ -191,7 +167,16 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                         .setNegativeButton(getResources().getString(R.string.cancel), this)
                         .show();
                 break;
+            case R.id.type:
+                startActivityForResult(new Intent(mContext, SearchTypeActivity.class),
+                        REQUEST_ACITIVITY_GET_TYPE_CODE);
         }
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
     }
 
@@ -246,13 +231,14 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     private void submit() {
 
         AccountDetail detail = new AccountDetail();
+        SmartType type = new SmartType(mContext);
         detail.setAccountId(Account.currentAccountId);
         detail.setDate(dateFomatter.format(mCalendar.getTime()));
         detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")
                 .replace(",", "")));
         detail.setNote(noteText.getText().toString());
         detail.setPicUri(""); // TODO pic
-        detail.setRecordType(typeSpinner.getSelectedItemPosition());
+        detail.setRecordType(type.getTypeIndex(typeTextView.getText().toString()));
         detail.setReimbursabled(reimbursabledBox.isChecked() ? 1 : 0);
         if (locationBox.isChecked()) {
             detail.setLocation("重庆文理学院"); // TODO location
@@ -263,7 +249,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
         try {
             ContentValues cv = new ContentValues();
             cv.put("accountId", detail.getAccountId());
-            cv.put("recordOp", operateTypeSpinner.getSelectedItemPosition());
+            cv.put("recordOp", accountSpinner.getSelectedItemPosition());
             cv.put("recordType", detail.getRecordType());
             cv.put("moneyAmount", detail.getMoney());
             cv.put("picUri", detail.getPicUri());
@@ -272,7 +258,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
             cv.put("note", detail.getNote());
             cv.put("isReimbursabled", detail.isReimbursabled());
             db.doInsert("detail", cv);
-            db.syncAccount(detail.getMoney(), operateTypeSpinner.getSelectedItemPosition());
+            db.syncAccount(detail.getMoney(), accountSpinner.getSelectedItemPosition());
             db.close();
         } catch (Exception e) {
             e.printStackTrace();

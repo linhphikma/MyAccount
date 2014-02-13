@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- General -->
     <string name="app_name">麦本</string>
     <string name="action_settings">设置</string>
     <string name="action_add">添加</string>
@@ -10,40 +11,51 @@
     <string name="attention">提示</string>
     <string name="enable">启用</string>
     <string name="disable">禁用</string>
-    
+
+    <!-- Message -->
     <string name="msg_loading">载入中&#8230;</string>
     <string name="msg_no_details">无记录</string>
     <string name="msg_input">请输入</string>
     <string name="msg_edit">编辑</string>
     <string name="msg_input_date">请选择日期</string>
-    
+
+    <!-- Info -->
     <string name="money">金额</string>
     <string name="date">时间</string>
     <string name="type">账单类型</string>
     <string name="location">位置信息</string>
     <string name="note">备注</string>
-    
+
+    <!-- Floating Bar -->
     <string name="floating_bar_expend">本月支出:</string>
     <string name="floating_bar_revenue">本月收入:</string>
     <string name="floating_bar_balance">差额:</string>
-    
+
+    <!-- Record Detail -->
     <string name="title_activity_record_detail">账单详情</string>
-    
     <string name="add_record_title">新增账务</string>
+    <string name="add_record_type_title">选择分类</string>
     <string name="add_record_note_hint">备注</string>
     <string name="add_record_reimbursable_hint">是否可报销?</string>
     <string name="add_record_location_hint">记录你的位置.</string>
-    
     <string name="show_record_title">显示账务</string>
     <string name="show_record_add_pic">长按添加图片</string>
     <string name="show_record_choose_pic_source">选择图片来源</string>
     <string name="show_record_choose_pic_failed">未选择图片</string>
     <string name="show_record_changes_alert">检测到你对账单做出了修改，是否保存？</string>
-    
+
+    <!-- Settings -->
+    <string name="label_settings">设置</string>
+
+    <!-- Account Manage -->
     <string name="title_activity_account_manage">账户管理</string>
     <string name="pref_account_manage_current">当前账户</string>
     <string name="pref_account_manage_category_edit">编辑账户</string>
     <string name="pref_account_manage_add_account">添加账户</string>
     <string name="pref_account_manage_default_account">默认账户无法禁用或删除</string>
     <string name="pref_account_manage_detail_balance">总余额:</string>
+
+    <!-- Smart Type -->
+    <string name="smart_type_search_bar_hint">输入拼音搜索，输入汉字添加</string>
+
 </resources>

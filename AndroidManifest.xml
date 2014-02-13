@@ -35,6 +35,11 @@
             android:name="com.xifan.myaccount.SettingsActivity"
             android:label="@string/label_settings" >
         </activity>
+        <activity
+            android:name="com.xifan.myaccount.SearchTypeActivity"
+            android:label="@null"
+            android:theme="@style/SearchWindow" >
+        </activity>
     </application>
 
 </manifest>
