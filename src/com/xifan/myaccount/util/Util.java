@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+import com.pinyin4android.PinyinUtil;
 import com.xifan.myaccount.data.TypeInfo;
 
 import java.text.SimpleDateFormat;
@@ -87,6 +88,16 @@ public class Util {
         }
         list[low] = tmpInstance; // 中轴记录到尾
         return low; // 返回中轴的位置
+    }
+    
+    public String getPinyin(Context context, CharSequence s) {
+        String[] tmp = PinyinUtil.toPinyin(context, s.toString()).split(" ");
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < tmp.length; i++) {
+            str.append(tmp[i].substring(0, 1));
+        }
+        return str.toString().trim();
+
     }
 
     private Bitmap blurImageAmeliorate(Bitmap bmp)

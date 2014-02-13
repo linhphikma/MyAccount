@@ -11,6 +11,7 @@ import com.xifan.myaccount.data.TypeInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class SmartType {
@@ -130,13 +131,13 @@ public class SmartType {
         return list;
     }
 
-    public String getTypeByPinyin(CharSequence s) {
-        String[] tmp = PinyinUtil.toPinyin(mContext, s.toString()).split(" ");
-        StringBuilder str = new StringBuilder();
-        for (int i = 0; i < tmp.length; i++) {
-            str.append(tmp[i].substring(0, 1));
+    public String[] getMatchPinyin() {
+        List<TypeInfo> list = getMatch();
+        Iterator<TypeInfo> inter = list.iterator();
+        String[] newArray = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            newArray[i] = inter.next().getTypePinyin();
         }
-        return str.toString().trim();
-
+        return newArray;
     }
 }
