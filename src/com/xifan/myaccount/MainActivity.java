@@ -51,7 +51,6 @@ public class MainActivity extends Activity {
     private float firstY;
 
     private int mCurrentAccount = Account.currentAccountId;
-    private boolean isScrolling = false;
     private float mExpend = 0f;
     private float mRevenue = 0f;
     private float mTotal = 0f;
@@ -98,16 +97,22 @@ public class MainActivity extends Activity {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
-                        Log.e("xifan", "ACTION_DOWN");
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (firstY > event.getAxisValue(MotionEvent.AXIS_Y) && isScrolling)
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > 50) {
                             mFloatingBar.setVisibility(View.GONE);
-                        else {
+                        }
+                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > 50) {
                             mFloatingBar.setVisibility(View.VISIBLE);
                         }
-                        firstY = 0; // need to clear;
-                        Log.e("xifan", "ACTION_UP");
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > 50) {
+                            mFloatingBar.setVisibility(View.GONE);
+                        }
+                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > 50) {
+                            mFloatingBar.setVisibility(View.VISIBLE);
+                        }
                         break;
                 }
                 return false;
@@ -118,14 +123,11 @@ public class MainActivity extends Activity {
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                isScrolling = scrollState != SCROLL_STATE_IDLE;
-                Log.e("xifan", "onScrollStateChanged");
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
-                Log.e("xifan", "onScroll");
             }
         });
 
@@ -164,8 +166,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mTask.getStatus() != Status.RUNNING && mTask.getStatus() != Status.PENDING) {
-            Log.e("xifan", mTask.getStatus().toString());
+        if (mTask.getStatus() == Status.FINISHED) {
             mTask.execute(TASK_TYPE_LOAD_LIST);
         }
     }
@@ -261,7 +262,7 @@ public class MainActivity extends Activity {
             mTotal = 0f;
         }
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
