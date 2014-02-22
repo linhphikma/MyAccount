@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -47,15 +48,13 @@ public class MainActivity extends Activity {
 
     private LoadTask mTask;
 
+    private float firstY;
+
+    private int mCurrentAccount = Account.currentAccountId;
+    private boolean isScrolling = false;
     private float mExpend = 0f;
     private float mRevenue = 0f;
     private float mTotal = 0f;
-
-    private boolean isFirstRun = true;
-    private boolean isScrolling = false;
-
-    private float firstY;
-    private int mCurrentAccount;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
 
@@ -99,6 +98,8 @@ public class MainActivity extends Activity {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
+                        Log.e("xifan", "ACTION_DOWN");
+                        break;
                     case MotionEvent.ACTION_UP:
                         if (firstY > event.getAxisValue(MotionEvent.AXIS_Y) && isScrolling)
                             mFloatingBar.setVisibility(View.GONE);
@@ -106,6 +107,7 @@ public class MainActivity extends Activity {
                             mFloatingBar.setVisibility(View.VISIBLE);
                         }
                         firstY = 0; // need to clear;
+                        Log.e("xifan", "ACTION_UP");
                         break;
                 }
                 return false;
@@ -117,12 +119,13 @@ public class MainActivity extends Activity {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 isScrolling = scrollState != SCROLL_STATE_IDLE;
+                Log.e("xifan", "onScrollStateChanged");
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
-
+                Log.e("xifan", "onScroll");
             }
         });
 
@@ -161,19 +164,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadInfo();
-        if (isFirstRun) {
-            isFirstRun = false;
-        } else {
-            LoadTask task = new LoadTask();
-            task.execute(TASK_TYPE_LOAD_LIST);
+        if (mTask.getStatus() != Status.RUNNING && mTask.getStatus() != Status.PENDING) {
+            Log.e("xifan", mTask.getStatus().toString());
+            mTask.execute(TASK_TYPE_LOAD_LIST);
         }
     }
 
     private void loadInfo() {
         SharedPreferences prefs = getSharedPreferences("pref", 0);
         mCurrentAccount = prefs.getInt("currentAccount", -1);
-        if (mCurrentAccount == -1) {
+        if (mCurrentAccount < 1) {
             // default use Cash account
             mCurrentAccount = 1;
             prefs.edit().putInt("currentAccount", 1).apply();
@@ -185,6 +185,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected Void doInBackground(String... params) {
+            loadInfo();
             if (params[0] == TASK_TYPE_LOAD_LIST) {
                 DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
                         DbHelper.version);
@@ -258,13 +259,12 @@ public class MainActivity extends Activity {
             mExpend = 0f;
             mRevenue = 0f;
             mTotal = 0f;
-
         }
     }
-
+    
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         mTask.cancel(true);
     }
 

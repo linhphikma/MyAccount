@@ -69,6 +69,8 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     private static final int ITEM_MONEY_VIEW = 1;
     private static final int ITEM_DATE_VIEW = 2;
     private static final int REQUEST_ACITIVITY_GET_TYPE_CODE = 0;
+    
+    private int mTypeId = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

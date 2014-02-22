@@ -4,7 +4,7 @@ package com.xifan.myaccount.data;
 public class Account {
     
     public static int currentAccountId = 1;
-    public static int currentAccountType = 1;
+    public static int defaultAccountType = 1;
     
     private String accountName;
     private int accountType;

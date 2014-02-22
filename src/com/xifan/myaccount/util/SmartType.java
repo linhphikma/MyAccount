@@ -113,6 +113,7 @@ public class SmartType {
             mList.add(type);
         }
 
+        c.close();
         return sort(mList);
     }
 
@@ -122,6 +123,7 @@ public class SmartType {
         if (array.length > 0) { // 查看数组是否为空
             Util.quickSort(array, 0, array.length - 1);
             list.clear();
+            Log.e("xifan", "test: array.length = " + array.length);
             for (int i = 0; i < array.length; i++) {
                 list.add(array[i]);
             }
