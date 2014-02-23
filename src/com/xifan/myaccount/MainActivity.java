@@ -63,6 +63,8 @@ public class MainActivity extends Activity {
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
     private static final int GESTURE_LENGTH = 20;
+    private static final int REQUEST_ADD_FLAG = 1;
+    private static final int REQUEST_ACCOUNT_FLAG = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,12 +161,12 @@ public class MainActivity extends Activity {
             case R.id.menu_add:
                 intent = new Intent(mContext, RecordDetail.class);
                 intent.putExtra("type", RecordDetail.REQUEST_ADD_RECORD);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, REQUEST_ADD_FLAG);
                 break;
             case R.id.menu_account_manage:
                 intent = new Intent(mContext, SettingsActivity.class);
                 intent.putExtra("entry", AccountManage.class.getSimpleName());
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_ACCOUNT_FLAG);
                 break;
             case R.id.action_settings:
                 intent = new Intent(mContext, SettingsActivity.class);
@@ -176,10 +178,15 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (mTask.getStatus() == Status.FINISHED) {
-            mTask.execute(TASK_TYPE_LOAD_LIST);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_ADD_FLAG) {
+                mTask.execute(TASK_TYPE_LOAD_LIST);
+            }
+            else if (requestCode == REQUEST_ACCOUNT_FLAG) {
+                mTask.execute(TASK_TYPE_LOAD_LIST);
+            }
         }
     }
 
