@@ -15,6 +15,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -46,9 +49,12 @@ public class MainActivity extends Activity {
     private TextView revenueText;
     private TextView totalText;
 
+    private AnimationSet mHideAnim;
+
     private LoadTask mTask;
 
     private float firstY;
+    private boolean isListEnd;
 
     private int mCurrentAccount = Account.currentAccountId;
     private float mExpend = 0f;
@@ -56,6 +62,7 @@ public class MainActivity extends Activity {
     private float mTotal = 0f;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
+    private static final int GESTURE_LENGTH = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +87,8 @@ public class MainActivity extends Activity {
         revenueText = (TextView) findViewById(R.id.account_revenue_of_month_value);
         totalText = (TextView) findViewById(R.id.account_total_of_month_value);
 
+        mHideAnim = (AnimationSet) AnimationUtils.loadAnimation(mContext, R.anim.hide_t2b);
+
         mListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
@@ -99,18 +108,19 @@ public class MainActivity extends Activity {
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > 50) {
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
+                            if (!isListEnd)
+                                mFloatingBar.startAnimation(mHideAnim);
                             mFloatingBar.setVisibility(View.GONE);
-                        }
-                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > 50) {
-                            mFloatingBar.setVisibility(View.VISIBLE);
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > 50) {
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
+                            if (!isListEnd)
+                                mFloatingBar.startAnimation(mHideAnim);
                             mFloatingBar.setVisibility(View.GONE);
                         }
-                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > 50) {
+                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > GESTURE_LENGTH) {
                             mFloatingBar.setVisibility(View.VISIBLE);
                         }
                         break;
@@ -123,14 +133,16 @@ public class MainActivity extends Activity {
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
+                // TODO Auto-generated method stub
+
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
+                isListEnd = totalItemCount == firstVisibleItem + visibleItemCount;
             }
         });
-
     }
 
     @Override
