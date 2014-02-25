@@ -13,12 +13,15 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.util.DbHelper;
+import com.xifan.myaccount.util.SmartType;
+import com.xifan.myaccount.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,8 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
     private LoadTask mTask;
 
     private int mCurrentAccount;
+
+    private static final String KEY_DEFAULT_ACCOUNT = "default_account";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,7 +68,7 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
         if (key == mAddAccount.getKey()) {
             // TODO 新增账户
             Log.e("Tag", "add account");
-        } else if (key.equals("default_account")) {
+        } else if (key.equals(KEY_DEFAULT_ACCOUNT)) {
             Toast.makeText(mContext, R.string.pref_account_manage_default_account,
                     Toast.LENGTH_SHORT).show();
         }
@@ -79,6 +84,7 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
             if (mCurrentAccount != Account.currentAccountId) {
                 mCurrentAccount = Account.currentAccountId;
                 prefs.edit().putInt("currentAccount", mCurrentAccount).apply();
+                getActivity().setResult(-1);
             }
         }
         return false;
@@ -90,23 +96,9 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
         protected HashMap<String, Object> doInBackground(Void... params) {
             mAccountTypeList = new ArrayList<String>();
             mAccountList = new ArrayList<Account>();
-            DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
-            Cursor c = db.doQuery("select * from account_type", null);
-            while (c.moveToNext()) {
-                mAccountTypeList.add(c.getString(c.getColumnIndex("typename")));
-            } // init accountTypeList
-
-            c = db.doQuery("select * from account", null);
-            while (c.moveToNext()) {
-                Account account = new Account();
-                account.setAccountName(c.getString(c.getColumnIndex("accountName")));
-                account.setAccountType(c.getInt(c.getColumnIndex("accountType")));
-                account.setTotal(c.getInt(c.getColumnIndex("total")));
-                account.setExpend(c.getInt(c.getColumnIndex("expend")));
-                account.setId(c.getInt(c.getColumnIndex("id")));
-                account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
-                mAccountList.add(account);
-            }
+            SmartType st = new SmartType(mContext);
+            mAccountTypeList = st.getAccountTypeList();
+            mAccountList = st.getAccountList();
 
             String[] entries = new String[mAccountList.size()];
             String[] entryValues = new String[mAccountList.size()];
@@ -123,7 +115,6 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
                     currentIndex = i;
                 entryValues[i] = String.valueOf(i);
             }
-            db.closeAll(c);
 
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("Entries", entries);
@@ -145,7 +136,9 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
                 if (ac.getId() == 1) {
                     // Default cash account
                     Preference newPref = new Preference(mContext);
-                    newPref.setTitle(mAccountTypeList.get(0));
+                    newPref.setTitle(TextUtils.isEmpty(ac.getAccountName()) ? mAccountTypeList
+                            .get(0) : ac.getAccountName());
+                    newPref.setKey(KEY_DEFAULT_ACCOUNT);
                     newPref.setSummary(getResources().getString(
                             R.string.pref_account_manage_detail_balance)
                             + " " + ac.getTotal());
@@ -158,20 +151,20 @@ public class AccountManage extends PreferenceFragment implements OnPreferenceCha
                             R.string.pref_account_manage_detail_balance)
                             + ac.getTotal());
                     newPref.setChecked(true);
-                    newPref.setTitle(ac.getAccountName().equals("") ? mAccountTypeList.get(ac
-                            .getAccountType() - 1) : ac.getAccountName());
+                    newPref.setTitle(TextUtils.isEmpty(ac.getAccountName()) ? mAccountTypeList
+                            .get(ac.getAccountType() - 1) : ac.getAccountName());
                     mEditCategory.addPreference(newPref);
                 }
             }
-            mAddAccount.setOrder(99);
+            mAddAccount.setOrder(mAccountList.size() + 1);
         }
 
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onPause() {
         mTask.cancel(true);
+        super.onPause();
     }
 
 }

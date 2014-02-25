@@ -65,6 +65,7 @@ public class MainActivity extends Activity {
     private static final int GESTURE_LENGTH = 20;
     private static final int REQUEST_ADD_FLAG = 1;
     private static final int REQUEST_ACCOUNT_FLAG = 2;
+    private static final int REQUEST_SHOW_FLAG = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,10 +96,9 @@ public class MainActivity extends Activity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(mContext, RecordDetail.class);
-                intent.putExtra("type", RecordDetail.REQUEST_SHOW_RECORD);
+                Intent intent = new Intent(mContext, ShowRecord.class);
                 intent.putExtra("detail", mDetailList.get(position));
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_SHOW_FLAG);
             }
         });
         mListView.setOnTouchListener(new OnTouchListener() {
@@ -111,15 +111,17 @@ public class MainActivity extends Activity {
                         break;
                     case MotionEvent.ACTION_UP:
                         if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
-                            if (!isListEnd)
+                            if (!isListEnd) {
                                 mFloatingBar.startAnimation(mHideAnim);
+                            }
                             mFloatingBar.setVisibility(View.GONE);
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
-                            if (!isListEnd)
+                            if (!isListEnd) {
                                 mFloatingBar.startAnimation(mHideAnim);
+                            }
                             mFloatingBar.setVisibility(View.GONE);
                         }
                         else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > GESTURE_LENGTH) {
@@ -135,14 +137,14 @@ public class MainActivity extends Activity {
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
-                isListEnd = totalItemCount == firstVisibleItem + visibleItemCount;
+                isListEnd = totalItemCount == firstVisibleItem + visibleItemCount
+                        || totalItemCount == 0;
             }
         });
     }
@@ -159,8 +161,7 @@ public class MainActivity extends Activity {
         Intent intent;
         switch (item.getItemId()) {
             case R.id.menu_add:
-                intent = new Intent(mContext, RecordDetail.class);
-                intent.putExtra("type", RecordDetail.REQUEST_ADD_RECORD);
+                intent = new Intent(mContext, AddRecord.class);
                 startActivityForResult(intent, REQUEST_ADD_FLAG);
                 break;
             case R.id.menu_account_manage:
@@ -181,12 +182,8 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_ADD_FLAG) {
-                mTask.execute(TASK_TYPE_LOAD_LIST);
-            }
-            else if (requestCode == REQUEST_ACCOUNT_FLAG) {
-                mTask.execute(TASK_TYPE_LOAD_LIST);
-            }
+            mTask = new LoadTask();
+            mTask.execute(TASK_TYPE_LOAD_LIST);
         }
     }
 
@@ -205,6 +202,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected Void doInBackground(String... params) {
+            Log.e("xifan", "processing");
             loadInfo();
             if (params[0] == TASK_TYPE_LOAD_LIST) {
                 DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,

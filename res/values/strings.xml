@@ -31,7 +31,6 @@
     <string name="floating_bar_balance">Monthly Balance:</string>
     
     <!-- Record Detail -->
-    <string name="title_activity_record_detail">Record Detail</string>
     <string name="add_record_title">Add Record</string>
     <string name="add_record_type_title">Select Type</string>
     <string name="add_record_note_hint">Write down what you want to note</string>

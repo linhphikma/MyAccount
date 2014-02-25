@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -44,6 +45,7 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
     private SmartType smartType;
 
     private int mTypeId;
+    private int mOperateType;
 
     private String[] matchesPinyin;
 
@@ -51,6 +53,8 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_type);
+
+        mOperateType = getIntent().getIntExtra("opType", 1);
         getActionBar().hide();
         mContext = this;
         mInflater = LayoutInflater.from(this);
@@ -79,10 +83,12 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         Log.e("xifan", "click");
         if (v.getId() == R.id.search_bar_confirm) {
-            Intent intent = getIntent();
-            intent.putExtra("typeId", mTypeId);
-            intent.putExtra("typeName", mSearchBar.getText().toString());
-            setResult(RESULT_OK, intent);
+            if (smartType.getTypeIndex(mSearchBar.getText().toString()) > -1) {
+                Intent intent = getIntent();
+                intent.putExtra("typeId", mTypeId);
+                intent.putExtra("typeName", mSearchBar.getText().toString());
+                setResult(RESULT_OK, intent);
+            }
             finish();
         }
     }
@@ -128,26 +134,22 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
 
         @Override
         protected Void doInBackground(Void... params) {
-            mTypeList = smartType.getMatch();
+            mTypeList = smartType.getMatch(mOperateType);
             mAdapter = new SearchListAdapter();
             return null;
         }
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
             mOk.setOnClickListener(SearchTypeActivity.this);
 
             mListView.setAdapter(mAdapter);
-            mListView.setOnItemSelectedListener(new OnItemSelectedListener() {
+            mListView.setOnItemClickListener(new OnItemClickListener() {
 
                 @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     mSearchBar.setText(mTypeList.get(position).getTypeName());
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
                 }
             });
 
@@ -160,7 +162,7 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
                     if (count > 0) {
                         lastInput = Util.getSecondsNow();
                         if (Util.getSecondsNow() - lastInput > 1200) {
-                            matchesPinyin = smartType.getMatchPinyin();
+                            matchesPinyin = smartType.getMatchPinyin(mOperateType);
                             for (int i = 0; i < matchesPinyin.length; i++) {
                                 if (matchesPinyin[i].equalsIgnoreCase(s.toString())) {
                                     mTypeList.get(i).setWeight(mTypeList.get(i).getWeight() + 1);

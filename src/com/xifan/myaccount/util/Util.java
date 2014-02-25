@@ -60,8 +60,8 @@ public class Util {
     public static int getMinuteOfTime() {
         return Calendar.getInstance().get(Calendar.MINUTE);
     }
-    
-    public static long getSecondsNow(){
+
+    public static long getSecondsNow() {
         return Calendar.getInstance().getTimeInMillis();
     }
 
@@ -89,7 +89,7 @@ public class Util {
         list[low] = tmpInstance; // 中轴记录到尾
         return low; // 返回中轴的位置
     }
-    
+
     public String getPinyin(Context context, CharSequence s) {
         String[] tmp = PinyinUtil.toPinyin(context, s.toString()).split(" ");
         StringBuilder str = new StringBuilder();

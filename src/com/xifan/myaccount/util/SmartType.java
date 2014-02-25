@@ -5,12 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.pinyin4android.PinyinUtil;
+import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.TypeInfo;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,6 +34,21 @@ public class SmartType {
         }
     }
 
+    private Cursor getFrequencies(int type) {
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+        Cursor c = null;
+        try {
+            c = db.doQuery("select * from record_type where operate_type=? order by freq desc",
+                    new String[] {
+                        String.valueOf(type)
+                    });
+            return c;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<String> getTypeName() {
         List<String> typeNameList = new ArrayList<String>();
         Cursor c = getFrequencies();
@@ -44,12 +57,42 @@ public class SmartType {
         while (c.moveToNext()) {
             typeNameList.add(c.getString(c.getColumnIndex("type_name")));
         }
+        c.close();
         return typeNameList;
     }
 
+    public List<Account> getAccountList() {
+        List<Account> accountList = new ArrayList<Account>();
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+        Cursor c = db.doQuery("select * from account", null);
+
+        while (c.moveToNext()) {
+            Account account = new Account();
+            account.setAccountName(c.getString(c.getColumnIndex("accountName")));
+            account.setAccountType(c.getInt(c.getColumnIndex("accountType")));
+            account.setTotal(c.getInt(c.getColumnIndex("total")));
+            account.setExpend(c.getInt(c.getColumnIndex("expend")));
+            account.setId(c.getInt(c.getColumnIndex("id")));
+            account.setRevenue(c.getFloat(c.getColumnIndex("revenue")));
+            accountList.add(account);
+        }
+        db.closeAll(c);
+        return accountList;
+    }
+
+    public List<String> getAccountTypeList() {
+        List<String> accountTypeList = new ArrayList<String>();
+        DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+        Cursor c = db.doQuery("select * from account_type", null);
+        while (c.moveToNext()) {
+            accountTypeList.add(c.getString(c.getColumnIndex("typename")));
+        }
+        c.close();
+        return accountTypeList;
+    }
+
     public int getTypeIndex(String type) {
-        int index = getTypeName().indexOf(type);
-        return index > -1 ? index : 0;
+        return getTypeName().indexOf(type);
     }
 
     /**
@@ -58,16 +101,13 @@ public class SmartType {
      * 
      * @return
      */
-    public List<TypeInfo> getMatch() {
+    public List<TypeInfo> getMatch(int opType) {
         // get types by frequency order
-        Cursor c = getFrequencies();
+        Cursor c = getFrequencies(opType);
         mList = new ArrayList<TypeInfo>();
 
-        int count = -1;
         int mark = 0;
-        long lastTime = 0l;
         while (c.moveToNext()) {
-            count++;
             TypeInfo type = new TypeInfo();
             type.setTypeName(c.getString(c.getColumnIndex("type_name")));
             type.setTypePinyin(c.getString(c.getColumnIndex("type_pinyin")));
@@ -133,8 +173,8 @@ public class SmartType {
         return list;
     }
 
-    public String[] getMatchPinyin() {
-        List<TypeInfo> list = getMatch();
+    public String[] getMatchPinyin(int opType) {
+        List<TypeInfo> list = getMatch(opType);
         Iterator<TypeInfo> inter = list.iterator();
         String[] newArray = new String[list.size()];
         for (int i = 0; i < list.size(); i++) {

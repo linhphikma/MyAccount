@@ -29,8 +29,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.xifan.myaccount.RecordDetail"
-            android:label="@string/title_activity_record_detail" >
+            android:name="com.xifan.myaccount.AddRecord"
+            android:label="@string/add_record_title" >
+        </activity>
+        <activity
+            android:name="com.xifan.myaccount.ShowRecord"
+            android:label="@string/show_record_title" >
         </activity>
         <activity
             android:name="com.xifan.myaccount.SettingsActivity"

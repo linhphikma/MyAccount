@@ -12,11 +12,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
-        <TextView
+        <Button
             android:id="@+id/type"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="@dimen/common_height"
-            android:layout_weight="5"
             android:gravity="center_vertical|left"
             android:text="@string/add_record_type_title"
             android:textSize="@dimen/add_item_size" />

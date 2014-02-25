@@ -1,15 +1,13 @@
 
-package com.xifan.myaccount.fragments;
+package com.xifan.myaccount;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -20,14 +18,11 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -42,15 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xifan.myaccount.R;
-import com.xifan.myaccount.R.array;
-import com.xifan.myaccount.R.drawable;
-import com.xifan.myaccount.R.id;
-import com.xifan.myaccount.R.layout;
-import com.xifan.myaccount.R.string;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.DbHelper;
 import com.xifan.myaccount.util.SmartType;
 import com.xifan.myaccount.widget.MoneyView;
+
+import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -58,10 +50,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class ShowRecord extends Fragment implements OnClickListener,
+public class ShowRecord extends SwipeBackActivity implements OnClickListener,
         DialogInterface.OnClickListener {
 
-    private LayoutInflater mInflater;
     private Context mContext;
     private Bitmap bmp;
 
@@ -98,17 +89,33 @@ public class ShowRecord extends Fragment implements OnClickListener,
     private boolean firstRun = true;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mInflater = inflater;
-        View view = mInflater.inflate(R.layout.fragment_show_record, container);
-        moneyView = (MoneyView) view.findViewById(R.id.details_money);
-        dateText = (TextView) view.findViewById(R.id.details_date);
-        typeSpinner = (Spinner) view.findViewById(R.id.details_type);
-        locationText = (TextView) view.findViewById(R.id.details_location);
-        noteText = (TextView) view.findViewById(R.id.details_note);
-        bgView = (ImageView) view.findViewById(R.id.background);
-        bgBlank = (RelativeLayout) view.findViewById(R.id.details_blank);
-        tipText = (TextView) view.findViewById(R.id.details_add_tip);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_show_record);
+        mContext = this;
+        mDetail = getIntent().getParcelableExtra("detail");
+
+        // init storage path
+        picPath = new File(Environment.getExternalStorageDirectory()
+                + File.separator
+                + "MaiBen");
+        if (!picPath.exists()) {
+            picPath.mkdir();
+        }
+        bmp = null;
+
+        initView();
+    }
+
+    private void initView() {
+        moneyView = (MoneyView) findViewById(R.id.details_money);
+        dateText = (TextView) findViewById(R.id.details_date);
+        typeSpinner = (Spinner) findViewById(R.id.details_type);
+        locationText = (TextView) findViewById(R.id.details_location);
+        noteText = (TextView) findViewById(R.id.details_note);
+        bgView = (ImageView) findViewById(R.id.background);
+        bgBlank = (RelativeLayout) findViewById(R.id.details_blank);
+        tipText = (TextView) findViewById(R.id.details_add_tip);
 
         moneyView.setText(mDetail.getMoney());
         dateText.setText(mDetail.getDate());
@@ -154,12 +161,10 @@ public class ShowRecord extends Fragment implements OnClickListener,
                                                     "yyyyMMddHHmm",
                                                     Locale
                                                             .getDefault());
+                                            // Preset the uri for storage.
                                             picUri = new File(picPath + File.separator
                                                     + sdf.format(Calendar.getInstance().getTime())
-                                                    + "-date.jpg"); // Pre set
-                                                                    // the
-                                                                    // uri for
-                                                                    // storage.
+                                                    + "-date.jpg");
                                             Uri imageUri = Uri.fromFile(picUri);
                                             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                                             startActivityForResult(intent, SELECT_CAMERA);
@@ -188,23 +193,6 @@ public class ShowRecord extends Fragment implements OnClickListener,
         typeSpinner.setSelection(mDetail.getRecordType(), true);
 
         tipText.setVisibility(bgView.getDrawable() == null ? View.VISIBLE : View.GONE);
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = getActivity();
-        setHasOptionsMenu(true);
-        mDetail = getActivity().getIntent().getParcelableExtra("detail");
-        // init storage path
-        picPath = new File(Environment.getExternalStorageDirectory()
-                + File.separator
-                + "MaiBen");
-        if (!picPath.exists()) {
-            picPath.mkdir();
-        }
-        bmp = null;
     }
 
     @Override
@@ -252,7 +240,8 @@ public class ShowRecord extends Fragment implements OnClickListener,
             switch (clickItem) {
                 case 0:
                     writeToDb();
-                    getActivity().finish();
+                    setResult(RESULT_OK);
+                    finish();
                 case 1:
                     moneyView.setText(inputText.getText());
                     break;
@@ -269,7 +258,8 @@ public class ShowRecord extends Fragment implements OnClickListener,
             notifyRecordChanges(true);
         } else if (which == Dialog.BUTTON_POSITIVE) {
             if (clickItem == 0) {
-                getActivity().finish();
+                setResult(RESULT_OK);
+                finish();
             }
         }
 
@@ -277,7 +267,7 @@ public class ShowRecord extends Fragment implements OnClickListener,
 
     protected void notifyRecordChanges(boolean haschanges) {
         hasChanges = haschanges;
-        getActivity().invalidateOptionsMenu();
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -285,7 +275,7 @@ public class ShowRecord extends Fragment implements OnClickListener,
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == -1) {
             DisplayMetrics metrics = new DisplayMetrics();
-            getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
             if (requestCode == SELECT_PICTURE) {
                 // 选择图片
                 ContentResolver cr = mContext.getContentResolver();
@@ -316,14 +306,14 @@ public class ShowRecord extends Fragment implements OnClickListener,
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+    public boolean onCreateOptionsMenu(Menu menu) {
         confirmButton = menu.add("confirm");
         confirmButton.setIcon(R.drawable.ic_add_record_confirm)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         if (!hasChanges) {
             menu.removeItem(confirmButton.getItemId());
         }
+        return true;
     }
 
     @Override

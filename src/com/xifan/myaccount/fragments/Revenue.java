@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -41,76 +44,80 @@ import com.xifan.myaccount.util.SmartType;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
-public class AddRecord extends Fragment implements OnClickListener, OnCancelListener,
+public class Revenue extends Fragment implements OnClickListener, OnCancelListener,
         android.content.DialogInterface.OnClickListener {
     // TODO 摇一摇
 
     private LayoutInflater mInflater;
     private Context mContext;
 
-    private CheckBox reimbursabledBox;
-    private CheckBox locationBox;
-    private Spinner accountSpinner;
-    private TextView typeTextView;
-    private TextView dateTextView;
-    private TextView moneyTextView;
-    private EditText inputText;
-    private EditText noteText;
-    private DatePicker datePicker;
-    private TimePicker timePicker;
+    private CheckBox mReimbursabledBox;
+    private CheckBox mLocationBox;
+    private Spinner mAccountSpinner;
+    private Button mTypeButton;
+    private TextView mDateTextView;
+    private TextView mMoneyTextView;
+    private EditText mInputText;
+    private EditText mNoteText;
+    private DatePicker mDatePicker;
+    private TimePicker mTimePicker;
     private Calendar mCalendar;
 
-    private SimpleDateFormat dateFomatter;
+    private SimpleDateFormat mDateFomatter;
 
     private int clickItem;
+    private boolean isExpend;
+    private int mTypeIndex;
+    private String mTypeName;
 
     private static final int ITEM_MONEY_VIEW = 1;
     private static final int ITEM_DATE_VIEW = 2;
     private static final int REQUEST_ACITIVITY_GET_TYPE_CODE = 0;
-    
-    private int mTypeId = 1;
+
+    public static final int REQUEST_EXPEND = 1;
+    public static final int REQUEST_REVENUE = 2;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mInflater = inflater;
         mContext = getActivity();
-        View view = mInflater.inflate(R.layout.fragment_add_record, container);
-        accountSpinner = (Spinner) view.findViewById(R.id.account_spinner);
-        typeTextView = (TextView) view.findViewById(R.id.type);
-        dateTextView = (TextView) view.findViewById(R.id.date);
-        moneyTextView = (TextView) view.findViewById(R.id.money);
-        noteText = (EditText) view.findViewById(R.id.note);
-        reimbursabledBox = (CheckBox) view.findViewById(R.id.reimbursable);
-        locationBox = (CheckBox) view.findViewById(R.id.location);
+        View view = mInflater.inflate(R.layout.add_record_revenue, null);
+        mAccountSpinner = (Spinner) view.findViewById(R.id.account_spinner);
+        mTypeButton = (Button) view.findViewById(R.id.type);
+        mDateTextView = (TextView) view.findViewById(R.id.date);
+        mMoneyTextView = (TextView) view.findViewById(R.id.money);
+        mNoteText = (EditText) view.findViewById(R.id.note);
+        mReimbursabledBox = (CheckBox) view.findViewById(R.id.reimbursable);
+        mLocationBox = (CheckBox) view.findViewById(R.id.location);
 
-        typeTextView.setOnClickListener(this);
+        mTypeButton.setOnClickListener(this);
 
-        mCalendar = Calendar
-                .getInstance();
-        dateFomatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        mCalendar = Calendar.getInstance();
+        mDateFomatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-        dateTextView.setText(dateFomatter.format(mCalendar.getTime()));
-        dateTextView.setOnClickListener(this);
-        moneyTextView.setOnClickListener(this);
-        setMoneyColor();
-
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    protected void setMoneyColor() {
-        switch (accountSpinner.getSelectedItemPosition()) {
-            case 0:
-                moneyTextView.setTextColor(Color.RED);
-                break;
-            case 1:
-                moneyTextView.setTextColor(Color.GREEN);
-                break;
-            default:
-                moneyTextView.setTextColor(Color.BLACK);
-                break;
+        SmartType st = new SmartType(mContext);
+        List<Account> account = st.getAccountList();
+        Iterator<Account> accounts = st.getAccountList().iterator();
+        List<String> types = st.getAccountTypeList();
+        String[] list = new String[account.size()];
+        int i = 0;
+        while (accounts.hasNext()) {
+            Account ac = accounts.next();
+            boolean hasName = !TextUtils.isEmpty(ac.getAccountName());
+            list[i] = hasName ? ac.getAccountName() : types.get(ac.getAccountType() - 1);
         }
+
+        mAccountSpinner.setAdapter(new ArrayAdapter<String>(mContext,
+                android.R.layout.simple_dropdown_item_1line, list));
+        mDateTextView.setText(mDateFomatter.format(mCalendar.getTime()));
+        mDateTextView.setOnClickListener(this);
+        mMoneyTextView.setOnClickListener(this);
+        mMoneyTextView.setTextColor(isExpend ? Color.RED : Color.GREEN);
+        return view;
     }
 
     @Override
@@ -119,18 +126,18 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
             case R.id.money:
                 clickItem = ITEM_MONEY_VIEW;
 
-                inputText = new EditText(mContext);
-                inputText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-                inputText.setInputType(InputType.TYPE_CLASS_NUMBER
+                mInputText = new EditText(mContext);
+                mInputText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                mInputText.setInputType(InputType.TYPE_CLASS_NUMBER
                         | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                inputText.setWidth(inputText.getMaxWidth());
+                mInputText.setWidth(mInputText.getMaxWidth());
                 LinearLayout layout = new LinearLayout(mContext);
-                layout.addView(inputText);
+                layout.addView(mInputText);
                 LayoutParams param = new LayoutParams(LayoutParams.WRAP_CONTENT,
                         LayoutParams.WRAP_CONTENT);
                 param.setMargins(0, 10, 0, 0);
                 param.gravity = Gravity.CENTER;
-                inputText.setLayoutParams(param);
+                mInputText.setLayoutParams(param);
 
                 new AlertDialog.Builder(mContext)
                         .setTitle(getResources().getString(R.string.msg_input))
@@ -141,9 +148,9 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
             case R.id.date:
                 clickItem = ITEM_DATE_VIEW;
                 View view = mInflater.inflate(R.layout.datetime_picker_view, null);
-                datePicker = (DatePicker) view.findViewById(R.id.datepicker);
-                timePicker = (TimePicker) view.findViewById(R.id.timepicker);
-                datePicker.init(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH),
+                mDatePicker = (DatePicker) view.findViewById(R.id.datepicker);
+                mTimePicker = (TimePicker) view.findViewById(R.id.timepicker);
+                mDatePicker.init(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH),
                         mCalendar.get(Calendar.DAY_OF_MONTH),
                         new DatePicker.OnDateChangedListener() {
 
@@ -153,7 +160,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                                 mCalendar.set(year, monthOfYear, dayOfMonth);
                             }
                         });
-                timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+                mTimePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
 
                     @Override
                     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
@@ -170,8 +177,9 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
                         .show();
                 break;
             case R.id.type:
-                startActivityForResult(new Intent(mContext, SearchTypeActivity.class),
-                        REQUEST_ACITIVITY_GET_TYPE_CODE);
+                Intent intent = new Intent(mContext, SearchTypeActivity.class);
+                intent.putExtra("opType", isExpend ? 1 : 2);
+                startActivityForResult(intent, REQUEST_ACITIVITY_GET_TYPE_CODE);
         }
 
     }
@@ -179,7 +187,11 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        if (resultCode == -1) {
+            mTypeIndex = data.getIntExtra("typeId", 0);
+            mTypeName = data.getStringExtra("typeName");
+            mTypeButton.setText(mTypeName);
+        }
     }
 
     @Override
@@ -187,14 +199,14 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
         switch (clickItem) {
             case ITEM_MONEY_VIEW:
                 if (which == Dialog.BUTTON_POSITIVE) {
-                    moneyTextView.setText(inputText.getText().toString());
+                    mMoneyTextView.setText(mInputText.getText().toString());
                 } else {
                     dialog.cancel();
                 }
                 break;
             case ITEM_DATE_VIEW:
                 if (which == Dialog.BUTTON_POSITIVE) {
-                    dateTextView.setText(dateFomatter.format(mCalendar.getTime()));
+                    mDateTextView.setText(mDateFomatter.format(mCalendar.getTime()));
                 } else {
                     dialog.cancel();
                 }
@@ -210,6 +222,8 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int request = getArguments().getInt("opType", 1);
+        isExpend = request == REQUEST_EXPEND;
         setHasOptionsMenu(true);
     }
 
@@ -233,16 +247,15 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
     private void submit() {
 
         AccountDetail detail = new AccountDetail();
-        SmartType type = new SmartType(mContext);
         detail.setAccountId(Account.currentAccountId);
-        detail.setDate(dateFomatter.format(mCalendar.getTime()));
-        detail.setMoney(Float.valueOf(moneyTextView.getText().toString().replace("￥", "")
+        detail.setDate(mDateFomatter.format(mCalendar.getTime()));
+        detail.setMoney(Float.valueOf(mMoneyTextView.getText().toString().replace("￥", "")
                 .replace(",", "")));
-        detail.setNote(noteText.getText().toString());
+        detail.setNote(mNoteText.getText().toString());
         detail.setPicUri(""); // TODO pic
-        detail.setRecordType(type.getTypeIndex(typeTextView.getText().toString()));
-        detail.setReimbursabled(reimbursabledBox.isChecked() ? 1 : 0);
-        if (locationBox.isChecked()) {
+        detail.setRecordType(mTypeIndex);
+        detail.setReimbursabled(mReimbursabledBox.isChecked() ? 1 : 0);
+        if (mLocationBox.isChecked()) {
             detail.setLocation("重庆文理学院"); // TODO location
         }
 
@@ -251,7 +264,7 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
         try {
             ContentValues cv = new ContentValues();
             cv.put("accountId", detail.getAccountId());
-            cv.put("recordOp", accountSpinner.getSelectedItemPosition());
+            cv.put("recordOp", mAccountSpinner.getSelectedItemPosition());
             cv.put("recordType", detail.getRecordType());
             cv.put("moneyAmount", detail.getMoney());
             cv.put("picUri", detail.getPicUri());
@@ -260,13 +273,14 @@ public class AddRecord extends Fragment implements OnClickListener, OnCancelList
             cv.put("note", detail.getNote());
             cv.put("isReimbursabled", detail.isReimbursabled());
             db.doInsert("detail", cv);
-            db.syncAccount(detail.getMoney(), accountSpinner.getSelectedItemPosition());
+            db.syncAccount(detail.getMoney(), mAccountSpinner.getSelectedItemPosition());
             db.close();
+            Log.e("xifan", "done");
+            getActivity().setResult(-1);
+            getActivity().finish();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.e("xifan", "done");
-        getActivity().finish();
     }
 
 }
