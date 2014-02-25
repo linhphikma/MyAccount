@@ -71,7 +71,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
 
     private int clickItem;
     private boolean isExpend;
-    private int mTypeIndex;
+    private int mTypeId;
     private String mTypeName;
 
     private static final int ITEM_MONEY_VIEW = 1;
@@ -188,7 +188,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == -1) {
-            mTypeIndex = data.getIntExtra("typeId", 0);
+            mTypeId = data.getIntExtra("typeId", 0);
             mTypeName = data.getStringExtra("typeName");
             mTypeButton.setText(mTypeName);
         }
@@ -253,10 +253,10 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
                 .replace(",", "")));
         detail.setNote(mNoteText.getText().toString());
         detail.setPicUri(""); // TODO pic
-        detail.setRecordType(mTypeIndex);
+        detail.setRecordType(mTypeId);
         detail.setReimbursabled(mReimbursabledBox.isChecked() ? 1 : 0);
         if (mLocationBox.isChecked()) {
-            detail.setLocation("重庆文理学院"); // TODO location
+            detail.setLocation("地球"); // TODO location
         }
 
         DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
@@ -264,7 +264,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
         try {
             ContentValues cv = new ContentValues();
             cv.put("accountId", detail.getAccountId());
-            cv.put("recordOp", mAccountSpinner.getSelectedItemPosition());
+            cv.put("recordOp", getOpeateInt(isExpend));
             cv.put("recordType", detail.getRecordType());
             cv.put("moneyAmount", detail.getMoney());
             cv.put("picUri", detail.getPicUri());
@@ -273,7 +273,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
             cv.put("note", detail.getNote());
             cv.put("isReimbursabled", detail.isReimbursabled());
             db.doInsert("detail", cv);
-            db.syncAccount(detail.getMoney(), mAccountSpinner.getSelectedItemPosition());
+            db.syncAccount(detail.getMoney(), detail.getRecordType(), getOpeateInt(isExpend));
             db.close();
             Log.e("xifan", "done");
             getActivity().setResult(-1);
@@ -281,6 +281,10 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int getOpeateInt(boolean val) {
+        return isExpend ? 1 : 2;
     }
 
 }

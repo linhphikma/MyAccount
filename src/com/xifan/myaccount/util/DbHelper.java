@@ -86,7 +86,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return mDb.insert(table, null, values);
     }
 
-    public void syncAccount(String moneyText, int operation) {
+    public void syncAccount(String moneyText, int typeId, int operation) {
         Log.e("xifan", "Syncing account data");
         Account account = new Account();
         Cursor c = doQuery("select * from account where id=?", new String[] {
@@ -99,11 +99,11 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         ContentValues cv = new ContentValues();
         float money = Float.valueOf(moneyText);
-        if (operation == 0) {
+        if (operation == 1) {
             // 支出
             cv.put("expend", account.getExpend() + money);
             cv.put("total", account.getTotal() - money);
-        } else if (operation == 1) {
+        } else if (operation == 2) {
             // 收入
             cv.put("revenue", account.getRevenue() + money);
             cv.put("total", account.getTotal() + money);
@@ -112,6 +112,18 @@ public class DbHelper extends SQLiteOpenHelper {
         mDb.update("account", cv, "id=?", new String[] {
                 String.valueOf(Account.currentAccountId)
         });
+
+        c = doQuery(
+                "select freq from record_type where operate_type=? and id=? order by freq desc",
+                new String[] {
+                        String.valueOf(operation), String.valueOf(typeId)
+                });
+        ContentValues typeValues = new ContentValues();
+        typeValues.put("last_date", Util.getTime());
+        if (c.moveToNext()) {
+            typeValues.put("freq", c.getInt(c.getColumnIndex("freq")) + 1);
+        }
+
         closeAll(c);
     }
 

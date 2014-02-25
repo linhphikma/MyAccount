@@ -2,12 +2,21 @@
 package com.xifan.myaccount.data;
 
 public class TypeInfo{
+    private int typeId;
     private String typeName;
     private String typePinyin;
     private String lastDate;
     private int frequency;
     private String stamp;
     private Integer weight;
+
+    public int getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
+    }
 
     public String getTypeName() {
         return typeName;

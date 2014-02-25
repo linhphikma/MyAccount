@@ -27,14 +27,14 @@ public class AccountAdapter extends BaseAdapter {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         SmartType type = new SmartType(context);
-        typeNames = type.getTypeName();
+        typeNames = type.getTypeNameList();
     }
 
     public AccountAdapter(Context context, List<AccountDetail> list) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
         SmartType type = new SmartType(context);
-        typeNames = type.getTypeName();
+        typeNames = type.getTypeNameList();
         this.list = list;
     }
 
@@ -67,7 +67,8 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
-        holder.typeText.setText(typeNames.get(list.get(position).getRecordType()));
+        holder.typeText.setText(typeNames.get(list.get(position).getRecordType() > 0 ? list.get(
+                position).getRecordType() - 1 : 0));
         holder.dateText.setText(list.get(position).getOnlyDate());
         holder.moneyText.setText(list.get(position).getMoney());
         if (list.get(position).getPicUri() == null) {

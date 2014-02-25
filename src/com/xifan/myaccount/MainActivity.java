@@ -232,11 +232,11 @@ public class MainActivity extends Activity {
                         detail.setReimbursabled(c.getInt(c.getColumnIndex("isReimbursabled")));
                         mDetailList.add(detail);
 
-                        // Count data
+                        // Count data TODO different color
                         operate = c.getInt(c.getColumnIndex("recordOp"));
-                        if (operate == 0) {
+                        if (operate == 1) {
                             mExpend += Float.parseFloat(detail.getMoney());
-                        } else if (operate == 1) {
+                        } else if (operate == 2) {
                             mRevenue += Float.parseFloat(detail.getMoney());
                         }
                     }

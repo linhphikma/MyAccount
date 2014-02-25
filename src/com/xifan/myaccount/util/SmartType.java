@@ -49,7 +49,7 @@ public class SmartType {
         }
     }
 
-    public List<String> getTypeName() {
+    public List<String> getTypeNameList() {
         List<String> typeNameList = new ArrayList<String>();
         Cursor c = getFrequencies();
 
@@ -92,7 +92,7 @@ public class SmartType {
     }
 
     public int getTypeIndex(String type) {
-        return getTypeName().indexOf(type);
+        return getTypeNameList().indexOf(type);
     }
 
     /**
@@ -109,6 +109,7 @@ public class SmartType {
         int mark = 0;
         while (c.moveToNext()) {
             TypeInfo type = new TypeInfo();
+            type.setTypeId(c.getInt(c.getColumnIndex("id")));
             type.setTypeName(c.getString(c.getColumnIndex("type_name")));
             type.setTypePinyin(c.getString(c.getColumnIndex("type_pinyin")));
             type.setLastDate(c.getString(c.getColumnIndex("last_date")));
@@ -165,6 +166,7 @@ public class SmartType {
             list.clear();
             Log.e("xifan", "test: array.length = " + array.length);
             for (int i = 0; i < array.length; i++) {
+                Log.e("xifan", array[i].getTypeName());
                 list.add(array[i]);
             }
         } else {

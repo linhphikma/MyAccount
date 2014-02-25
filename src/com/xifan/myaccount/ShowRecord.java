@@ -120,7 +120,7 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
         moneyView.setText(mDetail.getMoney());
         dateText.setText(mDetail.getDate());
         typeSpinner.setAdapter(new ArrayAdapter<String>(mContext, R.layout.type_spinner_view,
-                new SmartType(mContext).getTypeName()));
+                new SmartType(mContext).getTypeNameList()));
         locationText.setText(mDetail.getLocation());
         noteText.setText(mDetail.getNote());
 

@@ -150,6 +150,7 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     mSearchBar.setText(mTypeList.get(position).getTypeName());
+                    mTypeId = mTypeList.get(position).getTypeId();
                 }
             });
 
