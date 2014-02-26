@@ -65,12 +65,13 @@ public class Util {
         return Calendar.getInstance().getTimeInMillis();
     }
 
-    public static void quickSort(TypeInfo[] list, int low, int high) {
+    public static TypeInfo[] quickSort(TypeInfo[] list, int low, int high) {
         if (low < high) {
             int middle = getMiddle(list, low, high); // 将list数组进行一分为二
             quickSort(list, low, middle - 1); // 对低字表进行递归排序
             quickSort(list, middle + 1, high); // 对高字表进行递归排序
         }
+        return list;
     }
 
     public static int getMiddle(TypeInfo[] list, int low, int high) {

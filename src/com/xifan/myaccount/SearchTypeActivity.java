@@ -83,11 +83,14 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         Log.e("xifan", "click");
         if (v.getId() == R.id.search_bar_confirm) {
-            if (smartType.getTypeIndex(mSearchBar.getText().toString()) > -1) {
-                Intent intent = getIntent();
-                intent.putExtra("typeId", mTypeId);
-                intent.putExtra("typeName", mSearchBar.getText().toString());
-                setResult(RESULT_OK, intent);
+            for (TypeInfo i : mTypeList) {
+                if (i.getTypeName().equals(mSearchBar.getText().toString())) {
+                    Intent intent = getIntent();
+                    intent.putExtra("typeId", mTypeId);
+                    intent.putExtra("typeName", mSearchBar.getText().toString());
+                    setResult(RESULT_OK, intent);
+                    break;
+                }
             }
             finish();
         }

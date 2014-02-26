@@ -21,20 +21,14 @@ public class AccountAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private Context mContext;
 
-    private List<String> typeNames;
-
     public AccountAdapter(Context context) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
-        SmartType type = new SmartType(context);
-        typeNames = type.getTypeNameList();
     }
 
     public AccountAdapter(Context context, List<AccountDetail> list) {
         mContext = context;
         mInflater = LayoutInflater.from(context);
-        SmartType type = new SmartType(context);
-        typeNames = type.getTypeNameList();
         this.list = list;
     }
 
@@ -52,7 +46,7 @@ public class AccountAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-
+    
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder holder;
@@ -67,8 +61,8 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
-        holder.typeText.setText(typeNames.get(list.get(position).getRecordType() > 0 ? list.get(
-                position).getRecordType() - 1 : 0));
+        holder.typeText.setText(new SmartType(mContext).getTypeName(list.get(position)
+                .getRecordType()));
         holder.dateText.setText(list.get(position).getOnlyDate());
         holder.moneyText.setText(list.get(position).getMoney());
         if (list.get(position).getPicUri() == null) {

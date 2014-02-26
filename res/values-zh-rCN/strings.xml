@@ -11,6 +11,10 @@
     <string name="attention">提示</string>
     <string name="enable">启用</string>
     <string name="disable">禁用</string>
+    
+    <!-- Context Bar -->
+    <string name="context_title">Operation</string>
+    <string name="context_delete">Delete</string>
 
     <!-- Message -->
     <string name="msg_loading">载入中&#8230;</string>

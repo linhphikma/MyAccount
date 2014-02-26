@@ -29,6 +29,7 @@ public class SmartType {
             c = db.doQuery("select * from record_type order by freq desc", null);
             return c;
         } catch (Exception e) {
+            db.close();
             e.printStackTrace();
             return null;
         }
@@ -44,21 +45,24 @@ public class SmartType {
                     });
             return c;
         } catch (Exception e) {
+            db.close();
             e.printStackTrace();
             return null;
         }
     }
 
-    public List<String> getTypeNameList() {
-        List<String> typeNameList = new ArrayList<String>();
+    public String getTypeName(int id) {
         Cursor c = getFrequencies();
-
-        mList = new ArrayList<TypeInfo>();
+        String name = null;
         while (c.moveToNext()) {
-            typeNameList.add(c.getString(c.getColumnIndex("type_name")));
+            if (c.getInt(c.getColumnIndex("id")) == id) {
+                name = c.getString(c.getColumnIndex("type_name"));
+                c.close();
+                Log.e("xifan", "type name is " + name);
+                break;
+            }
         }
-        c.close();
-        return typeNameList;
+        return name;
     }
 
     public List<Account> getAccountList() {
@@ -91,10 +95,6 @@ public class SmartType {
         return accountTypeList;
     }
 
-    public int getTypeIndex(String type) {
-        return getTypeNameList().indexOf(type);
-    }
-
     /**
      * 排序逻辑：用mark来标记，首先初始值根据freq排列，如果last_date小于三天则
      * mark++，然后根据event_stamp，有其中一个则mark++，以上没有则mark--。
@@ -107,6 +107,7 @@ public class SmartType {
         mList = new ArrayList<TypeInfo>();
 
         int mark = 0;
+        int count = c.getCount();
         while (c.moveToNext()) {
             TypeInfo type = new TypeInfo();
             type.setTypeId(c.getInt(c.getColumnIndex("id")));
@@ -149,20 +150,22 @@ public class SmartType {
                 mark--;
             }
 
-            // save weignt to item
+            // save weight to item
             type.setWeight(mark);
             mList.add(type);
+            count--;
         }
 
         c.close();
         return sort(mList);
+        // return mList;
     }
 
     public List<TypeInfo> sort(List<TypeInfo> list) {
         TypeInfo[] array = new TypeInfo[list.size()];
         list.toArray(array);
         if (array.length > 0) { // 查看数组是否为空
-            Util.quickSort(array, 0, array.length - 1);
+            array = Util.quickSort(array, 0, array.length - 1);
             list.clear();
             Log.e("xifan", "test: array.length = " + array.length);
             for (int i = 0; i < array.length; i++) {

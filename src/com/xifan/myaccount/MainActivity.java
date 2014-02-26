@@ -7,24 +7,27 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.xifan.myaccount.adapter.AccountAdapter;
 import com.xifan.myaccount.data.Account;
@@ -39,6 +42,7 @@ public class MainActivity extends Activity {
     // TODO Slide or Tab to switch month
 
     private List<AccountDetail> mDetailList;
+    private List<AccountDetail> mPickDelList;
     private AccountAdapter mAdapter;
     private Context mContext;
 
@@ -73,6 +77,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mDetailList = new ArrayList<AccountDetail>();
+        mPickDelList = new ArrayList<AccountDetail>();
         mContext = this;
 
         initView();
@@ -110,7 +115,8 @@ public class MainActivity extends Activity {
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH
+                                && mFloatingBar.getVisibility() == View.VISIBLE && !isListEnd) {
                             if (!isListEnd) {
                                 mFloatingBar.startAnimation(mHideAnim);
                             }
@@ -118,10 +124,9 @@ public class MainActivity extends Activity {
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH) {
-                            if (!isListEnd) {
-                                mFloatingBar.startAnimation(mHideAnim);
-                            }
+                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH
+                                && mFloatingBar.getVisibility() == View.VISIBLE && !isListEnd) {
+                            mFloatingBar.startAnimation(mHideAnim);
                             mFloatingBar.setVisibility(View.GONE);
                         }
                         else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > GESTURE_LENGTH) {
@@ -147,11 +152,72 @@ public class MainActivity extends Activity {
                         || totalItemCount == 0;
             }
         });
+
+        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.main_context_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete:
+                        deleteItems();
+                        mode.finish();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
+                    boolean checked) {
+                if (checked)
+                    mPickDelList.add(mDetailList.get(position));
+                else {
+                    mPickDelList.remove(mDetailList.get(position));
+                }
+            }
+        });
+    }
+
+    protected void deleteItems() {
+        if (mPickDelList.size() > 0) {
+            DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null, DbHelper.version);
+            for (AccountDetail detail : mPickDelList) {
+                db.doDelete("detail", "id=?", new String[] {
+                        String.valueOf(detail.getId())
+                });
+                db.syncAccount(detail.getMoney(), detail.getRecordType(), -detail.getOperateType());
+            }
+            db.close();
+            mPickDelList.clear();
+
+            mTask = new LoadTask();
+            mTask.execute(TASK_TYPE_LOAD_LIST);
+
+            Toast.makeText(mContext, "已删除", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -216,8 +282,9 @@ public class MainActivity extends Activity {
                     Log.e("xifan", "details not exist,checking if account exist");
                 }
 
+                mDetailList.clear();
+
                 if (c != null && c.getCount() > 0) {
-                    mDetailList.clear();
                     int operate = -1;
                     while (c.moveToNext()) {
                         AccountDetail detail = new AccountDetail();
@@ -239,6 +306,7 @@ public class MainActivity extends Activity {
                         } else if (operate == 2) {
                             mRevenue += Float.parseFloat(detail.getMoney());
                         }
+                        detail.setOperateType(operate);
                     }
                     mTotal = mRevenue - mExpend;
                     Log.e("xifan", "db read");
@@ -263,11 +331,8 @@ public class MainActivity extends Activity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if (mDetailList.size() > 0) {
-                msgText.setVisibility(View.GONE);
-            } else {
-                msgText.setText(R.string.msg_no_details);
-            }
+            msgText.setVisibility(mDetailList.size() > 0 ? View.GONE : View.VISIBLE);
+            msgText.setText(R.string.msg_no_details);
             mListView.setAdapter(mAdapter);
             expendText.setText(String.valueOf(mExpend));
             revenueText.setText(String.valueOf(mRevenue));

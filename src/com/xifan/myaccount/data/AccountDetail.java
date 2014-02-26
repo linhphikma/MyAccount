@@ -10,6 +10,7 @@ public class AccountDetail implements Parcelable {
     private int id;
     private int accountId;
     private int recordType;
+    private int operateType;
     private float money;
     private String picUri;
     private String date;
@@ -38,6 +39,14 @@ public class AccountDetail implements Parcelable {
 
     public void setRecordType(int recordType) {
         this.recordType = recordType;
+    }
+
+    public int getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(int operateType) {
+        this.operateType = operateType;
     }
 
     public String getDate() {
@@ -117,6 +126,7 @@ public class AccountDetail implements Parcelable {
             detail.id = source.readInt();
             detail.accountId = source.readInt();
             detail.recordType = source.readInt();
+            detail.operateType = source.readInt();
             detail.money = source.readFloat();
             detail.picUri = source.readString();
             detail.date = source.readString();
@@ -137,6 +147,7 @@ public class AccountDetail implements Parcelable {
         dest.writeInt(id);
         dest.writeInt(accountId);
         dest.writeInt(recordType);
+        dest.writeInt(operateType);
         dest.writeFloat(money);
         dest.writeString(picUri);
         dest.writeString(date);

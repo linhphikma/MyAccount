@@ -22,6 +22,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String DB_TABLE_TYPE = "record_type";
     public static final int DB_WRITABLE_FLAG = 1;
     public static final int DB_READABLE_FLAG = 1;
+    public static final int SYNC_DELETE_TYPE_ID = -1;
 
     private SQLiteDatabase mDb;
 
@@ -86,6 +87,13 @@ public class DbHelper extends SQLiteOpenHelper {
         return mDb.insert(table, null, values);
     }
 
+    public int doDelete(String table, String where, String[] args) {
+        Log.e("xifan", "Delete: " + table + "where " + where);
+        mDb = getWritableDatabase();
+        return mDb.delete(table, where, args);
+    }
+
+    // TODO need to fix with transfer
     public void syncAccount(String moneyText, int typeId, int operation) {
         Log.e("xifan", "Syncing account data");
         Account account = new Account();
@@ -99,6 +107,18 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         ContentValues cv = new ContentValues();
         float money = Float.valueOf(moneyText);
+
+        // Check if is operating deletion.
+        final boolean isDel;
+        if (operation < 0) {
+            operation = -operation;
+            // swap operation
+            operation = operation == 2 ? 1 : 2;
+            isDel = true;
+        } else {
+            isDel = false;
+        }
+        
         if (operation == 1) {
             // 支出
             cv.put("expend", account.getExpend() + money);
@@ -108,20 +128,25 @@ public class DbHelper extends SQLiteOpenHelper {
             cv.put("revenue", account.getRevenue() + money);
             cv.put("total", account.getTotal() + money);
         }
-
         mDb.update("account", cv, "id=?", new String[] {
                 String.valueOf(Account.currentAccountId)
         });
 
-        c = doQuery(
-                "select freq from record_type where operate_type=? and id=? order by freq desc",
-                new String[] {
-                        String.valueOf(operation), String.valueOf(typeId)
-                });
-        ContentValues typeValues = new ContentValues();
-        typeValues.put("last_date", Util.getTime());
-        if (c.moveToNext()) {
-            typeValues.put("freq", c.getInt(c.getColumnIndex("freq")) + 1);
+        // Do not count type freqs if is deletion operate.
+        if (!isDel) {
+            c = doQuery(
+                    "select freq from record_type where operate_type=? and id=? order by freq desc",
+                    new String[] {
+                            String.valueOf(operation), String.valueOf(typeId)
+                    });
+            ContentValues typeValues = new ContentValues();
+            typeValues.put("last_date", Util.getTime());
+            if (c.moveToNext()) {
+                typeValues.put("freq", c.getInt(c.getColumnIndex("freq")) + 1);
+            }
+            mDb.update("record_type", typeValues, "id=?", new String[] {
+                    String.valueOf(typeId)
+            });
         }
 
         closeAll(c);

@@ -71,8 +71,9 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
 
     private int clickItem;
     private boolean isExpend;
-    private int mTypeId;
     private String mTypeName;
+    
+    private int mTypeId = 1;
 
     private static final int ITEM_MONEY_VIEW = 1;
     private static final int ITEM_DATE_VIEW = 2;
@@ -188,7 +189,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == -1) {
-            mTypeId = data.getIntExtra("typeId", 0);
+            mTypeId = data.getIntExtra("typeId", 1);
             mTypeName = data.getStringExtra("typeName");
             mTypeButton.setText(mTypeName);
         }
@@ -254,6 +255,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
         detail.setNote(mNoteText.getText().toString());
         detail.setPicUri(""); // TODO pic
         detail.setRecordType(mTypeId);
+        detail.setOperateType(getOpeateInt(isExpend));
         detail.setReimbursabled(mReimbursabledBox.isChecked() ? 1 : 0);
         if (mLocationBox.isChecked()) {
             detail.setLocation("地球"); // TODO location

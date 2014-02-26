@@ -1,1 +1,2 @@
-BUG: fix type index shown in showrecord
+BUG: types is not shown anymore.
+TODO: make searchTypes working.

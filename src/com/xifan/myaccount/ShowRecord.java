@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -58,12 +59,11 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
 
     private MoneyView moneyView;
     private TextView dateText;
-    private Spinner typeSpinner;
+    private TextView typeSpinner;
     private TextView locationText;
     private TextView noteText;
     private RelativeLayout bgBlank;
     private ImageView bgView;
-    private EditText inputText;
     private TextView tipText;
     private MenuItem confirmButton;
 
@@ -85,8 +85,6 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
     private static final String TAG = "MaiBen";
 
     private boolean hasChanges = false;
-
-    private boolean firstRun = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,7 +108,7 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
     private void initView() {
         moneyView = (MoneyView) findViewById(R.id.details_money);
         dateText = (TextView) findViewById(R.id.details_date);
-        typeSpinner = (Spinner) findViewById(R.id.details_type);
+        typeSpinner = (TextView) findViewById(R.id.details_type);
         locationText = (TextView) findViewById(R.id.details_location);
         noteText = (TextView) findViewById(R.id.details_note);
         bgView = (ImageView) findViewById(R.id.background);
@@ -119,12 +117,11 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
 
         moneyView.setText(mDetail.getMoney());
         dateText.setText(mDetail.getDate());
-        typeSpinner.setAdapter(new ArrayAdapter<String>(mContext, R.layout.type_spinner_view,
-                new SmartType(mContext).getTypeNameList()));
+        typeSpinner.setOnClickListener(this);
         locationText.setText(mDetail.getLocation());
         noteText.setText(mDetail.getNote());
 
-        if (mDetail.getPicUri() != null) {
+        if (!TextUtils.isEmpty(mDetail.getPicUri())) {
             try {
                 bmp = BitmapFactory.decodeStream(mContext.getContentResolver()
                         .openInputStream(Uri.parse(mDetail.getPicUri())));
@@ -174,23 +171,6 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
                 return true;
             }
         });
-        typeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int
-                    position, long id) {
-                if (!firstRun) {
-                    notifyRecordChanges(true);
-                } else {
-                    firstRun = false;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        typeSpinner.setSelection(mDetail.getRecordType(), true);
 
         tipText.setVisibility(bgView.getDrawable() == null ? View.VISIBLE : View.GONE);
     }
@@ -199,9 +179,45 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
     public void onClick(View v) {
         if (v instanceof TextView) {
             String title = getResources().getString(R.string.msg_edit);
+            LinearLayout layout = new LinearLayout(mContext);
+            LayoutParams param = new LayoutParams(LayoutParams.WRAP_CONTENT,
+                    LayoutParams.WRAP_CONTENT);
+            param.setMargins(0, 10, 0, 0);
+            param.gravity = Gravity.CENTER;
+            
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
+            .setTitle(title)
+            .setView(layout)
+            .setNegativeButton(getResources().getString(R.string.cancel), this);
+            // TODO rework
             if (v == moneyView) {
                 clickItem = INDEX_MONEY;
                 title += getResources().getString(R.string.money);
+                final EditText innerView = new EditText(mContext);
+                innerView.setInputType(InputType.TYPE_CLASS_NUMBER
+                        | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                innerView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                innerView.setWidth(innerView.getMaxWidth());
+                innerView.setLayoutParams(param);
+                builder.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == Dialog.BUTTON_POSITIVE) {
+                            switch (clickItem) {
+                                case 0:
+                                    writeToDb();
+                                    setResult(RESULT_OK);
+                                    finish();
+                                case 1:
+                                    moneyView.setText(innerView.getText());
+                                    break;
+                            }
+                            notifyRecordChanges(true);
+                        }
+                    }
+                });
+                
+                layout.addView(innerView);
             } else if (v == dateText) {
                 clickItem = INDEX_DATE;
                 title += getResources().getString(R.string.date);
@@ -212,51 +228,12 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
                 clickItem = INDEX_NOTE;
                 title += getResources().getString(R.string.note);
             }
-
-            inputText = new EditText(mContext);
-            inputText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-            inputText.setInputType(InputType.TYPE_CLASS_NUMBER
-                    | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            inputText.setWidth(inputText.getMaxWidth());
-            LinearLayout layout = new LinearLayout(mContext);
-            layout.addView(inputText);
-            LayoutParams param = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT);
-            param.setMargins(0, 10, 0, 0);
-            param.gravity = Gravity.CENTER;
-            inputText.setLayoutParams(param);
-
-            new AlertDialog.Builder(mContext)
-                    .setTitle(title)
-                    .setView(layout)
-                    .setPositiveButton(getResources().getString(R.string.ok), this)
-                    .setNegativeButton(getResources().getString(R.string.cancel), this).show();
         }
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        if (which == Dialog.BUTTON_POSITIVE) {
-            switch (clickItem) {
-                case 0:
-                    writeToDb();
-                    setResult(RESULT_OK);
-                    finish();
-                case 1:
-                    moneyView.setText(inputText.getText());
-                    break;
-                case 2:
-                    dateText.setText(inputText.getText());
-                    break;
-                case 4:
-                    locationText.setText(inputText.getText());
-                    break;
-                case 5:
-                    noteText.setText(inputText.getText());
-                    break;
-            }
-            notifyRecordChanges(true);
-        } else if (which == Dialog.BUTTON_POSITIVE) {
+         if (which == Dialog.BUTTON_POSITIVE) {
             if (clickItem == 0) {
                 setResult(RESULT_OK);
                 finish();
@@ -343,7 +320,7 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
         if (bmp != null)
             cv.put("picUri",
                     albumPicUri == null ? picUri.getPath() : albumPicUri.toString());
-        cv.put("recordType", typeSpinner.getSelectedItemPosition());
+        cv.put("recordType", typeSpinner.getText().toString());
         cv.put("moneyAmount", Float.valueOf(moneyView.getText().toString().replace("￥", "")
                 .replace(",", "")));
         cv.put("recordDate", dateText.getText().toString());

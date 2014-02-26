@@ -12,6 +12,11 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     
+    <!-- Context Bar -->
+    <string name="context_title">Operation</string>
+    <string name="context_delete">Delete</string>
+    
+    
     <!-- Message -->
     <string name="msg_loading">Loading&#8230;</string>
     <string name="msg_no_details">No Details</string>
