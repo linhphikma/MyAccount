@@ -66,7 +66,6 @@ public class MainActivity extends Activity {
     private float mTotal = 0f;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
-    private static final int GESTURE_LENGTH = 20;
     private static final int REQUEST_ADD_FLAG = 1;
     private static final int REQUEST_ACCOUNT_FLAG = 2;
     private static final int REQUEST_SHOW_FLAG = 2;
@@ -114,22 +113,13 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_DOWN:
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
                         break;
-                    case MotionEvent.ACTION_UP:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH
-                                && mFloatingBar.getVisibility() == View.VISIBLE && !isListEnd) {
-                            if (!isListEnd) {
-                                mFloatingBar.startAnimation(mHideAnim);
-                            }
-                            mFloatingBar.setVisibility(View.GONE);
-                        }
-                        break;
                     case MotionEvent.ACTION_MOVE:
-                        if (firstY - event.getAxisValue(MotionEvent.AXIS_Y) > GESTURE_LENGTH
-                                && mFloatingBar.getVisibility() == View.VISIBLE && !isListEnd) {
+                        if (firstY > event.getAxisValue(MotionEvent.AXIS_Y)
+                                && mFloatingBar.getVisibility() == View.VISIBLE ) {
                             mFloatingBar.startAnimation(mHideAnim);
                             mFloatingBar.setVisibility(View.GONE);
                         }
-                        else if (event.getAxisValue(MotionEvent.AXIS_Y) - firstY > GESTURE_LENGTH) {
+                        else if (event.getAxisValue(MotionEvent.AXIS_Y) > firstY) {
                             mFloatingBar.setVisibility(View.VISIBLE);
                         }
                         break;
