@@ -25,22 +25,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.DbHelper;
-import com.xifan.myaccount.util.SmartType;
 import com.xifan.myaccount.widget.MoneyView;
 
 import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
@@ -92,6 +86,8 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
         setContentView(R.layout.activity_show_record);
         mContext = this;
         mDetail = getIntent().getParcelableExtra("detail");
+
+        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // init storage path
         picPath = new File(Environment.getExternalStorageDirectory()
@@ -184,11 +180,11 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
                     LayoutParams.WRAP_CONTENT);
             param.setMargins(0, 10, 0, 0);
             param.gravity = Gravity.CENTER;
-            
+
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
-            .setTitle(title)
-            .setView(layout)
-            .setNegativeButton(getResources().getString(R.string.cancel), this);
+                    .setTitle(title)
+                    .setView(layout)
+                    .setNegativeButton(getResources().getString(R.string.cancel), this);
             // TODO rework
             if (v == moneyView) {
                 clickItem = INDEX_MONEY;
@@ -199,24 +195,25 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
                 innerView.setImeOptions(EditorInfo.IME_ACTION_DONE);
                 innerView.setWidth(innerView.getMaxWidth());
                 innerView.setLayoutParams(param);
-                builder.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == Dialog.BUTTON_POSITIVE) {
-                            switch (clickItem) {
-                                case 0:
-                                    writeToDb();
-                                    setResult(RESULT_OK);
-                                    finish();
-                                case 1:
-                                    moneyView.setText(innerView.getText());
-                                    break;
+                builder.setPositiveButton(getResources().getString(R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == Dialog.BUTTON_POSITIVE) {
+                                    switch (clickItem) {
+                                        case 0:
+                                            writeToDb();
+                                            setResult(RESULT_OK);
+                                            finish();
+                                        case 1:
+                                            moneyView.setText(innerView.getText());
+                                            break;
+                                    }
+                                    notifyRecordChanges(true);
+                                }
                             }
-                            notifyRecordChanges(true);
-                        }
-                    }
-                });
-                
+                        });
+
                 layout.addView(innerView);
             } else if (v == dateText) {
                 clickItem = INDEX_DATE;
@@ -233,7 +230,7 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-         if (which == Dialog.BUTTON_POSITIVE) {
+        if (which == Dialog.BUTTON_POSITIVE) {
             if (clickItem == 0) {
                 setResult(RESULT_OK);
                 finish();
@@ -305,6 +302,8 @@ public class ShowRecord extends SwipeBackActivity implements OnClickListener,
                         .setPositiveButton(getResources().getString(R.string.ok), this)
                         .setNegativeButton(getResources().getString(R.string.cancel), this).show();
                 clickItem = 0;
+            } else {
+                this.finish();
             }
         } else if (item.getItemId() == confirmButton.getItemId()) {
             writeToDb();

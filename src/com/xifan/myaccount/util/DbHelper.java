@@ -128,7 +128,7 @@ public class DbHelper extends SQLiteOpenHelper {
             cv.put("revenue", account.getRevenue() + money);
             cv.put("total", account.getTotal() + money);
         }
-        mDb.update("account", cv, "id=?", new String[] {
+        doUpdate("account", cv, "id=?", new String[] {
                 String.valueOf(Account.currentAccountId)
         });
 
@@ -144,7 +144,7 @@ public class DbHelper extends SQLiteOpenHelper {
             if (c.moveToNext()) {
                 typeValues.put("freq", c.getInt(c.getColumnIndex("freq")) + 1);
             }
-            mDb.update("record_type", typeValues, "id=?", new String[] {
+            doUpdate("record_type", typeValues, "id=?", new String[] {
                     String.valueOf(typeId)
             });
         }

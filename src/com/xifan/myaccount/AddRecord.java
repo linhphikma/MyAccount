@@ -23,6 +23,8 @@ public class AddRecord extends SwipeBackActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_record);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        
         FragmentManager fm = getFragmentManager();
         mFragmentList = new ArrayList<Fragment>();
 

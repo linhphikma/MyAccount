@@ -1,22 +1,23 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light"></style>
-
-    <style name="AppTheme" parent="AppBaseTheme">
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <item name="android:windowIsTranslucent">true</item>
-        <!--
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
-        -->
+        <!-- <item name="android:windowTranslucentStatus">true</item> -->
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
-    <!--
     <style name="MyActionBar" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">@color/action_bar_background</item>
-    </style>
-    -->
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="android:backgroundSplit">@color/transparent</item>
+    </style>
 
-    <style name="SearchWindow" parent="AppTheme">
+    <style name="MyActionBarTitleText" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="SearchWindow" parent="@android:style/Theme.Holo.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@color/search_background</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>

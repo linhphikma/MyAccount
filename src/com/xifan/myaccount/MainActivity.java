@@ -58,12 +58,12 @@ public class MainActivity extends Activity {
     private LoadTask mTask;
 
     private float firstY;
-    private boolean isListEnd;
 
     private int mCurrentAccount = Account.currentAccountId;
     private float mExpend = 0f;
     private float mRevenue = 0f;
     private float mTotal = 0f;
+    private boolean canListScroll = false;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
     private static final int REQUEST_ADD_FLAG = 1;
@@ -114,32 +114,33 @@ public class MainActivity extends Activity {
                         firstY = event.getAxisValue(MotionEvent.AXIS_Y);
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        if (firstY > event.getAxisValue(MotionEvent.AXIS_Y)
-                                && mFloatingBar.getVisibility() == View.VISIBLE ) {
-                            mFloatingBar.startAnimation(mHideAnim);
-                            mFloatingBar.setVisibility(View.GONE);
-                        }
-                        else if (event.getAxisValue(MotionEvent.AXIS_Y) > firstY) {
-                            mFloatingBar.setVisibility(View.VISIBLE);
+                        if (canListScroll) {
+                            if (firstY > event.getAxisValue(MotionEvent.AXIS_Y)
+                                    && mFloatingBar.getVisibility() == View.VISIBLE) {
+                                mFloatingBar.startAnimation(mHideAnim);
+                                mFloatingBar.setVisibility(View.GONE);
+                            }
+                            else if (event.getAxisValue(MotionEvent.AXIS_Y) > firstY
+                                    && mFloatingBar.getVisibility() == View.GONE) {
+                                mFloatingBar.setVisibility(View.VISIBLE);
+                            }
                         }
                         break;
                 }
                 return false;
             }
         });
-
         mListView.setOnScrollListener(new OnScrollListener() {
 
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
-                isListEnd = totalItemCount == firstVisibleItem + visibleItemCount
-                        || totalItemCount == 0;
+                if (firstY > 0)
+                    canListScroll = true;
             }
         });
 

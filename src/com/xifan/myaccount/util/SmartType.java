@@ -107,23 +107,21 @@ public class SmartType {
         mList = new ArrayList<TypeInfo>();
 
         int mark = 0;
-        int count = c.getCount();
         while (c.moveToNext()) {
             TypeInfo type = new TypeInfo();
-            type.setTypeId(c.getInt(c.getColumnIndex("id")));
-            type.setTypeName(c.getString(c.getColumnIndex("type_name")));
-            type.setTypePinyin(c.getString(c.getColumnIndex("type_pinyin")));
-            type.setLastDate(c.getString(c.getColumnIndex("last_date")));
-            // TODO add it in addRecord
-            type.setFrequency(c.getInt(c.getColumnIndex("freq")));
-            type.setStamp(c.getString(c.getColumnIndex("event_stamp")));
+            type.typeId = c.getInt(c.getColumnIndex("id"));
+            type.typeName = c.getString(c.getColumnIndex("type_name"));
+            type.typePinyin = c.getString(c.getColumnIndex("type_pinyin"));
+            type.lastDate = c.getString(c.getColumnIndex("last_date"));
+            type.frequency = c.getInt(c.getColumnIndex("freq"));
+            type.stamp = c.getString(c.getColumnIndex("event_stamp"));
 
             // Start check event_stamp
             int hour = -1;
             int day = -1;
             int month = -1;
-            if (!type.getStamp().equals("")) {
-                String[] stamp = type.getStamp().split(",");
+            if (!type.stamp.equals("")) {
+                String[] stamp = type.stamp.split(",");
                 for (String str : stamp) {
                     if (str.indexOf("h") > -1) {
                         hour = Integer.valueOf(str.replace("h", "").trim());
@@ -144,16 +142,15 @@ public class SmartType {
             }
 
             // Start check last_date
-            if (Util.getDaysFromNow(type.getLastDate()) > 3) {
+            if (Util.getDaysFromNow(type.lastDate) > 3) {
                 mark++;
             } else {
                 mark--;
             }
 
             // save weight to item
-            type.setWeight(mark);
+            type.weight = mark;
             mList.add(type);
-            count--;
         }
 
         c.close();
@@ -165,11 +162,11 @@ public class SmartType {
         TypeInfo[] array = new TypeInfo[list.size()];
         list.toArray(array);
         if (array.length > 0) { // 查看数组是否为空
-            array = Util.quickSort(array, 0, array.length - 1);
+            array = Util.quickSort(array);
             list.clear();
             Log.e("xifan", "test: array.length = " + array.length);
-            for (int i = 0; i < array.length; i++) {
-                Log.e("xifan", array[i].getTypeName());
+            for (int i = array.length - 1; i >= 0; i--) {
+                Log.e("xifan", array[i].typeName);
                 list.add(array[i]);
             }
         } else {
@@ -178,12 +175,10 @@ public class SmartType {
         return list;
     }
 
-    public String[] getMatchPinyin(int opType) {
-        List<TypeInfo> list = getMatch(opType);
-        Iterator<TypeInfo> inter = list.iterator();
+    public String[] getPinyinList(List<TypeInfo> list) {
         String[] newArray = new String[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            newArray[i] = inter.next().getTypePinyin();
+        for (int i = list.size() - 1; i >= 0; i--) {
+            newArray[i] = list.get(i).typePinyin;
         }
         return newArray;
     }

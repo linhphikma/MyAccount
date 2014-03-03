@@ -44,12 +44,14 @@
                 android:id="@+id/account_expend_of_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/floating_bar_expend" />
+                android:text="@string/floating_bar_expend"
+                android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/account_expend_of_month_value"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -62,12 +64,14 @@
                 android:id="@+id/account_revenue_of_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/floating_bar_revenue" />
+                android:text="@string/floating_bar_revenue"
+                android:textColor="@color/white" />
 
             <TextView
                 android:id="@+id/account_revenue_of_month_value"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -83,12 +87,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/floating_bar_balance"
+                android:textColor="@color/white"
                 android:textSize="28sp" />
 
             <TextView
                 android:id="@+id/account_total_of_month_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:textSize="28sp" />
         </LinearLayout>
     </LinearLayout>
