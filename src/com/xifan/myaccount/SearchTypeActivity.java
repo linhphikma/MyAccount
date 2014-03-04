@@ -2,8 +2,10 @@
 package com.xifan.myaccount;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,12 +26,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.xifan.myaccount.data.TypeInfo;
+import com.xifan.myaccount.util.DbHelper;
 import com.xifan.myaccount.util.SmartType;
 import com.xifan.myaccount.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class SearchTypeActivity extends Activity implements OnClickListener {
 
@@ -52,7 +54,7 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
     private boolean isTyping;
     private boolean isAdd;
 
-    private String[] matchesPinyin;
+    private boolean isNewType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,26 +77,55 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
         mTask.execute();
     }
 
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            mAdapter.notifyDataSetChanged();
-        }
-    };
-
     @Override
     public void onClick(View v) {
         Log.e("xifan", "click");
         if (v.getId() == R.id.search_bar_confirm) {
+            boolean flag = true;
             for (TypeInfo i : mTypeList) {
                 if (i.typeName.equals(mSearchBar.getText().toString())) {
-                    Intent intent = getIntent();
-                    intent.putExtra("typeId", mTypeId);
-                    intent.putExtra("typeName", mSearchBar.getText().toString());
-                    setResult(RESULT_OK, intent);
-                    break;
+                    if (isNewType) {
+                        // type is already exist in list
+                        mTypeId = i.typeId;
+                        flag = false;
+                    } else {
+                        Intent intent = getIntent();
+                        intent.putExtra("typeId", mTypeId);
+                        intent.putExtra("typeName", mSearchBar.getText().toString());
+                        setResult(RESULT_OK, intent);
+                        break;
+                    }
                 }
+            }
+            if (flag && isNewType) {
+                int typeId = -1;
+                String newType = mSearchBar.getText().toString();
+                String typePinyin = Util.getPinyin(mContext, newType);
+                DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
+                        DbHelper.version);
+                ContentValues cv = new ContentValues();
+                cv.put("type_name", newType);
+                cv.put("type_pinyin", typePinyin);
+                cv.put("last_date", Util.getTime());
+                cv.put("operate_type", mOperateType);
+                cv.put("freq", 1);
+                cv.put("event_stamp", "");
+                db.doInsert("record_type", cv);
+                Cursor c = db.doQuery("select id from record_type where type_name=?",
+                        new String[] {
+                            newType
+                        });
+                if (c.moveToFirst()) {
+                    typeId = c.getInt(c.getColumnIndex("id"));
+                } else {
+                    // issue
+                }
+                db.close();
+
+                Intent intent = getIntent();
+                intent.putExtra("typeId", typeId);
+                intent.putExtra("typeName", newType);
+                setResult(RESULT_OK, intent);
             }
             finish();
         }
@@ -163,24 +194,28 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
 
             mSearchBar.addTextChangedListener(new TextWatcher() {
 
-                private long lastInput;
+                SearchTask task = new SearchTask();
                 private long lastCount;
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (start >= 0 && !Util.isChinese(s.toString())) {
-                        if (start == 0) {
-                            lastInput = Util.getSecondsNow();
+                    if (Util.isChinese(s.toString())) {
+                        // Check is Chinese then don't search the list
+                        isNewType = true;
+                    } else {
+                        isNewType = false;
+
+                        if (s.length() > 0) {
+                            isAdd = s.length() > lastCount;
+                            if (task.getStatus() != Status.FINISHED) {
+                                task.cancel(true);
+                            }
+                            task = new SearchTask();
+                            task.execute(s.toString());
+                        } else if (TextUtils.isEmpty(s)) {
+                            mTypeList = smartType.getMatch(mOperateType);
+                            mAdapter.notifyDataSetChanged();
                         }
-                        if (Util.getSecondsNow() - lastInput > 1200) {
-                            isTyping = false;
-                        } else {
-                            isTyping = true;
-                            Log.e("xifan", "inputing...pause searching");
-                        }
-                        isAdd = s.length() > lastCount;
-                        SearchTask task = new SearchTask();
-                        task.execute(s.toString());
                     }
                 }
 
@@ -201,32 +236,26 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
 
         @Override
         protected Void doInBackground(String... params) {
-            try {
-                if (isAdd) {
-                    while (isTyping) {
-                        Thread.sleep(1200);
-                        if (isTyping){
-                            // TODO 停止线程
-                        }
-                    }
-                        
-                    Log.e("xifan", "searching");
-                    List<TypeInfo> newList = new ArrayList<TypeInfo>();
-                    matchesPinyin = smartType.getPinyinList(mTypeList);
-                    for (int i = 0; i < mTypeList.size(); i++) {
-                        if (matchesPinyin[i].indexOf(params[0].toString().toLowerCase()) > -1) {
-                            mTypeList.get(i).weight += 1;
-                            newList.add(mTypeList.get(i));
-                        }
-                    }
-                    newList = smartType.sort(newList);
-                    mTmpList = mTypeList;// backup list for speed
-                    mTypeList = newList;
-                } else {
-                    mTypeList = mTmpList;
+            if (isAdd) {
+                Log.e("xifan", "searching");
+                try {
+                    Thread.sleep(1200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                List<TypeInfo> newList = new ArrayList<TypeInfo>();
+                String[] matchesPinyin = smartType.getPinyinList(mTypeList);
+                for (int i = 0; i < mTypeList.size(); i++) {
+                    if (matchesPinyin[i].indexOf(params[0].toString().toLowerCase()) > -1) {
+                        mTypeList.get(i).weight += 1;
+                        newList.add(mTypeList.get(i));
+                    }
+                }
+                newList = smartType.sort(newList);
+                mTmpList = mTypeList;// backup list for speed
+                mTypeList = newList;
+            } else {
+                mTypeList = mTmpList;
             }
             return null;
         }

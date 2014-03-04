@@ -91,7 +91,7 @@ public class Util {
         return s.substring(0,1).matches("[\u4E00-\u9FA5]");
     }
 
-    public String getPinyin(Context context, CharSequence s) {
+    public static String getPinyin(Context context, CharSequence s) {
         String[] tmp = PinyinUtil.toPinyin(context, s.toString()).split(" ");
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < tmp.length; i++) {

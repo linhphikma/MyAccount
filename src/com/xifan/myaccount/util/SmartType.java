@@ -159,9 +159,9 @@ public class SmartType {
     }
 
     public List<TypeInfo> sort(List<TypeInfo> list) {
-        TypeInfo[] array = new TypeInfo[list.size()];
-        list.toArray(array);
-        if (array.length > 0) { // 查看数组是否为空
+        if (list.size() > 0) { // 查看数组是否为空
+            TypeInfo[] array = new TypeInfo[list.size()];
+            list.toArray(array);
             array = Util.quickSort(array);
             list.clear();
             Log.e("xifan", "test: array.length = " + array.length);
