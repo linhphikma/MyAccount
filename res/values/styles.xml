@@ -41,6 +41,12 @@
         <item name="android:paddingTop">20dp</item>
         <item name="android:paddingBottom">20dp</item>
     </style>
+    
+    <style name="CardList">
+        <item name="android:background">@drawable/card_background</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+    </style>
 
     <style name="Money">
         <item name="android:textSize">28sp</item>

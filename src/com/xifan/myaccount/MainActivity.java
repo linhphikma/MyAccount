@@ -15,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -183,6 +182,7 @@ public class MainActivity extends Activity {
                 else {
                     mPickDelList.remove(mDetailList.get(position));
                 }
+                // TODO need to fix list selected view
             }
         });
     }
