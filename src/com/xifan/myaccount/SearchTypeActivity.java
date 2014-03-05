@@ -51,10 +51,9 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
 
     private int mTypeId;
     private int mOperateType;
-    private boolean isTyping;
     private boolean isAdd;
 
-    private boolean isNewType;
+    private boolean isSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,26 +78,23 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
 
     @Override
     public void onClick(View v) {
-        Log.e("xifan", "click");
         if (v.getId() == R.id.search_bar_confirm) {
-            boolean flag = true;
+            boolean isNewType = true;
             for (TypeInfo i : mTypeList) {
                 if (i.typeName.equals(mSearchBar.getText().toString())) {
-                    if (isNewType) {
+                    if (!isSearch) {
                         // type is already exist in list
                         mTypeId = i.typeId;
-                        flag = false;
-                    } else {
-                        Intent intent = getIntent();
-                        intent.putExtra("typeId", mTypeId);
-                        intent.putExtra("typeName", mSearchBar.getText().toString());
-                        setResult(RESULT_OK, intent);
-                        break;
+                        isNewType = false;
                     }
+                    Intent intent = getIntent();
+                    intent.putExtra("typeId", mTypeId);
+                    intent.putExtra("typeName", mSearchBar.getText().toString());
+                    setResult(RESULT_OK, intent);
+                    break;
                 }
             }
-            if (flag && isNewType) {
-                int typeId = -1;
+            if (isNewType && !isSearch) {
                 String newType = mSearchBar.getText().toString();
                 String typePinyin = Util.getPinyin(mContext, newType);
                 DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,
@@ -116,14 +112,14 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
                             newType
                         });
                 if (c.moveToFirst()) {
-                    typeId = c.getInt(c.getColumnIndex("id"));
+                    mTypeId = c.getInt(c.getColumnIndex("id"));
                 } else {
                     // issue
                 }
                 db.close();
 
                 Intent intent = getIntent();
-                intent.putExtra("typeId", typeId);
+                intent.putExtra("typeId", mTypeId);
                 intent.putExtra("typeName", newType);
                 setResult(RESULT_OK, intent);
             }
@@ -201,14 +197,15 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (Util.isChinese(s.toString())) {
                         // Check is Chinese then don't search the list
-                        isNewType = true;
+                        isSearch = false;
                     } else {
-                        isNewType = false;
+                        isSearch = true;
 
                         if (s.length() > 0) {
                             isAdd = s.length() > lastCount;
                             if (task.getStatus() != Status.FINISHED) {
                                 task.cancel(true);
+                                Log.e("xifan", "Thread canceled");
                             }
                             task = new SearchTask();
                             task.execute(s.toString());
@@ -237,7 +234,6 @@ public class SearchTypeActivity extends Activity implements OnClickListener {
         @Override
         protected Void doInBackground(String... params) {
             if (isAdd) {
-                Log.e("xifan", "searching");
                 try {
                     Thread.sleep(1200);
                 } catch (InterruptedException e) {

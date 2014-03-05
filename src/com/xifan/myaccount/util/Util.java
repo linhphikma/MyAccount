@@ -86,9 +86,9 @@ public class Util {
         }
         return hasChanged ? tmparray : list;
     }
-    
+
     public static boolean isChinese(String s) {
-        return s.substring(0,1).matches("[\u4E00-\u9FA5]");
+        return s.length() > 0 ? s.substring(0, 1).matches("[\u4E00-\u9FA5]") : false;
     }
 
     public static String getPinyin(Context context, CharSequence s) {

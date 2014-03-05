@@ -198,11 +198,10 @@ public class MainActivity extends Activity {
             }
             db.close();
             mPickDelList.clear();
+            Toast.makeText(mContext, "已删除", Toast.LENGTH_SHORT).show();
 
             mTask = new LoadTask();
             mTask.execute(TASK_TYPE_LOAD_LIST);
-
-            Toast.makeText(mContext, "已删除", Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -3,6 +3,7 @@ package com.xifan.myaccount.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.xifan.myaccount.data.Account;
@@ -120,7 +121,7 @@ public class SmartType {
             int hour = -1;
             int day = -1;
             int month = -1;
-            if (!type.stamp.equals("")) {
+            if (!TextUtils.isEmpty(type.stamp)) {
                 String[] stamp = type.stamp.split(",");
                 for (String str : stamp) {
                     if (str.indexOf("h") > -1) {
@@ -142,7 +143,7 @@ public class SmartType {
             }
 
             // Start check last_date
-            if (Util.getDaysFromNow(type.lastDate) > 3) {
+            if (Util.getDaysFromNow(type.lastDate) > 1) {
                 mark++;
             } else {
                 mark--;
