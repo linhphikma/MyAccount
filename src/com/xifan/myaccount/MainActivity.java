@@ -63,7 +63,6 @@ public class MainActivity extends Activity {
     private float mRevenue = 0f;
     private float mTotal = 0f;
     private boolean canListScroll = false;
-    private boolean isMultiMode = false;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
     private static final int REQUEST_ADD_FLAG = 1;
@@ -197,9 +196,6 @@ public class MainActivity extends Activity {
                 mAdapter.notifyDataSetChanged();
             }
         });
-    }
-
-    protected void setSelectedColor(int position, boolean checked) {
     }
 
     protected void deleteItems() {

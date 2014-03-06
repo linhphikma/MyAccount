@@ -72,7 +72,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
     private int clickItem;
     private boolean isExpend;
     private String mTypeName;
-    
+
     private int mTypeId = 1;
 
     private static final int ITEM_MONEY_VIEW = 1;

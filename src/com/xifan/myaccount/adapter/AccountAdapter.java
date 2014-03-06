@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.xifan.myaccount.R;
@@ -15,7 +14,6 @@ import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.SmartType;
 import com.xifan.myaccount.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AccountAdapter extends BaseAdapter {
