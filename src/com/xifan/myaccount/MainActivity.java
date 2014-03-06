@@ -63,6 +63,7 @@ public class MainActivity extends Activity {
     private float mRevenue = 0f;
     private float mTotal = 0f;
     private boolean canListScroll = false;
+    private boolean isMultiMode = false;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
     private static final int REQUEST_ADD_FLAG = 1;
@@ -110,7 +111,8 @@ public class MainActivity extends Activity {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        firstY = event.getAxisValue(MotionEvent.AXIS_Y);
+                        if (canListScroll)
+                            firstY = event.getAxisValue(MotionEvent.AXIS_Y);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (canListScroll) {
@@ -135,11 +137,13 @@ public class MainActivity extends Activity {
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
 
+            // this method will be called when init view.
+            // check if user touched screen then let it scroll.
+            // and this will be called only when list can be scrolled.
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                     int totalItemCount) {
-                if (firstY > 0)
-                    canListScroll = true;
+                canListScroll = firstY > 0;
             }
         });
 
@@ -152,13 +156,18 @@ public class MainActivity extends Activity {
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
+                for (int i = 0; i < mPickDelList.size(); i++) {
+                    mPickDelList.get(i).setState(0);
+                }
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.main_context_menu, menu);
+                // prevent floating bar hide
+                canListScroll = false;
                 return true;
             }
 
@@ -177,14 +186,20 @@ public class MainActivity extends Activity {
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id,
                     boolean checked) {
-                if (checked)
-                    mPickDelList.add(mDetailList.get(position));
-                else {
-                    mPickDelList.remove(mDetailList.get(position));
+                AccountDetail item = mDetailList.get(position);
+                if (checked) {
+                    mPickDelList.add(item);
                 }
-                // TODO need to fix list selected view
+                else {
+                    mPickDelList.remove(item);
+                }
+                mAdapter.setCheckItem(position, checked);
+                mAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    protected void setSelectedColor(int position, boolean checked) {
     }
 
     protected void deleteItems() {
@@ -195,7 +210,9 @@ public class MainActivity extends Activity {
                         String.valueOf(detail.getId())
                 });
                 db.syncAccount(detail.getMoney(), detail.getRecordType(), -detail.getOperateType());
+                mDetailList.remove(detail);
             }
+            mAdapter.notifyDataSetChanged();
             db.close();
             mPickDelList.clear();
             Toast.makeText(mContext, "已删除", Toast.LENGTH_SHORT).show();
@@ -287,6 +304,7 @@ public class MainActivity extends Activity {
                         detail.setPicUri(c.getString(c.getColumnIndex("picUri")));
                         detail.setRecordType(c.getInt(c.getColumnIndex("recordType")));
                         detail.setReimbursabled(c.getInt(c.getColumnIndex("isReimbursabled")));
+                        detail.setState(0);
                         mDetailList.add(detail);
 
                         // Count data TODO different color
@@ -311,7 +329,8 @@ public class MainActivity extends Activity {
                     }
                 }
                 // bind
-                mAdapter = new AccountAdapter(mContext, mDetailList);
+                if (mAdapter == null)
+                    mAdapter = new AccountAdapter(mContext, mDetailList);
                 db.closeAll(c);
             }
             return null;
@@ -321,6 +340,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
+            mAdapter.notifyDataSetChanged();
             msgText.setVisibility(mDetailList.size() > 0 ? View.GONE : View.VISIBLE);
             msgText.setText(R.string.msg_no_details);
             mListView.setAdapter(mAdapter);

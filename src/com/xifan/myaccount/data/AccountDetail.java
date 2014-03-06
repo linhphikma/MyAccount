@@ -16,7 +16,8 @@ public class AccountDetail implements Parcelable {
     private String date;
     private String location;
     private String note;
-    boolean isReimbursabled;
+    private boolean isReimbursabled;
+    private int state; // selected state
 
     public static final int TYPE_EXPEND = 1; // 支出
     public static final int TYPE_REVENUE = 2; // 收入
@@ -113,6 +114,14 @@ public class AccountDetail implements Parcelable {
         this.isReimbursabled = isReimbursabled == 1 ? true : false;
     }
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
     public static final Parcelable.Creator<AccountDetail> CREATOR = new Creator<AccountDetail>() {
 
         @Override
@@ -133,6 +142,7 @@ public class AccountDetail implements Parcelable {
             detail.location = source.readString();
             detail.note = source.readString();
             detail.isReimbursabled = source.readByte() == 1 ? true : false;
+            detail.state = source.readInt();
             return detail;
         }
     };
@@ -154,6 +164,7 @@ public class AccountDetail implements Parcelable {
         dest.writeString(location);
         dest.writeString(note);
         dest.writeByte((byte) (isReimbursabled ? 1 : 0));
+        dest.writeInt(state);
     }
 
 }

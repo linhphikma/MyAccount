@@ -7,12 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.SmartType;
+import com.xifan.myaccount.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountAdapter extends BaseAdapter {
@@ -46,7 +49,11 @@ public class AccountAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-    
+
+    public void setCheckItem(int position, boolean isChecked) {
+        list.get(position).setState(isChecked ? 1 : 0);
+    }
+
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         ViewHolder holder;
@@ -61,13 +68,27 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
-        holder.typeText.setText(new SmartType(mContext).getTypeName(list.get(position)
-                .getRecordType()));
-        holder.dateText.setText(list.get(position).getOnlyDate());
-        holder.moneyText.setText(list.get(position).getMoney());
-        if (list.get(position).getPicUri() == null) {
+
+        AccountDetail detail = list.get(position);
+        holder.typeText.setText(new SmartType(mContext).getTypeName(detail.getRecordType()));
+        holder.dateText.setText(detail.getOnlyDate());
+        holder.moneyText.setText(detail.getMoney());
+        if (detail.getPicUri() == null) {
             holder.imgIcon.setVisibility(View.VISIBLE);
             holder.imgIcon.setImageResource(R.drawable.ic_img);
+        }
+        // update checked item view
+        if (detail.getState() == 1) {
+            view.setBackgroundColor(mContext.getResources().getColor(R.color.holo_blue));
+            holder.typeText.setTextColor(mContext.getResources().getColor(R.color.white));
+            holder.dateText.setTextColor(mContext.getResources().getColor(R.color.white));
+            holder.moneyText.setTextColor(mContext.getResources().getColor(R.color.white));
+        } else {
+            view.setBackground(mContext.getResources().getDrawable(R.drawable.card_background));
+            view.setPadding(Util.getPx(mContext, 10), 0, Util.getPx(mContext, 10), 0);
+            holder.typeText.setTextColor(mContext.getResources().getColor(R.color.black));
+            holder.dateText.setTextColor(mContext.getResources().getColor(R.color.black));
+            holder.moneyText.setTextColor(mContext.getResources().getColor(R.color.black));
         }
 
         return view;
