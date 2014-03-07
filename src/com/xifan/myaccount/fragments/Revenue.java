@@ -26,6 +26,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -34,6 +36,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
+import android.widget.Toast;
 
 import com.xifan.myaccount.R;
 import com.xifan.myaccount.SearchTypeActivity;
@@ -41,6 +44,7 @@ import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.util.DbHelper;
 import com.xifan.myaccount.util.SmartType;
+import com.xifan.myaccount.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -72,6 +76,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
     private int clickItem;
     private boolean isExpend;
     private String mTypeName;
+    private String mLocation;
 
     private int mTypeId = 1;
 
@@ -118,6 +123,20 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
         mDateTextView.setOnClickListener(this);
         mMoneyTextView.setOnClickListener(this);
         mMoneyTextView.setTextColor(isExpend ? Color.RED : Color.GREEN);
+        mLocationBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mLocation = Util.getLocation(mContext);
+                    Toast.makeText(
+                            mContext,
+                            getResources().getString(R.string.msg_location) + mLocation,
+                            Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
         return view;
     }
 
@@ -258,7 +277,7 @@ public class Revenue extends Fragment implements OnClickListener, OnCancelListen
         detail.setOperateType(getOpeateInt(isExpend));
         detail.setReimbursabled(mReimbursabledBox.isChecked() ? 1 : 0);
         if (mLocationBox.isChecked()) {
-            detail.setLocation("地球"); // TODO location
+            detail.setLocation(mLocation);
         }
 
         DbHelper db = new DbHelper(mContext, DbHelper.DB_NAME, null,

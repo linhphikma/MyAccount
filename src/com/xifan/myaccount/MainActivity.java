@@ -33,6 +33,8 @@ import com.xifan.myaccount.data.Account;
 import com.xifan.myaccount.data.AccountDetail;
 import com.xifan.myaccount.fragments.AccountManage;
 import com.xifan.myaccount.util.DbHelper;
+import com.xifan.myaccount.util.GeocodeHelper;
+import com.xifan.myaccount.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,7 @@ public class MainActivity extends Activity {
     private LoadTask mTask;
 
     private float firstY;
+    private String bootTime;
 
     private int mCurrentAccount = Account.currentAccountId;
     private float mExpend = 0f;
@@ -65,6 +68,7 @@ public class MainActivity extends Activity {
     private boolean canListScroll = false;
 
     private static final String TASK_TYPE_LOAD_LIST = "loadlist";
+    private static final String LOACATION_DEFATUL = "no";
     private static final int REQUEST_ADD_FLAG = 1;
     private static final int REQUEST_ACCOUNT_FLAG = 2;
     private static final int REQUEST_SHOW_FLAG = 2;
@@ -82,6 +86,7 @@ public class MainActivity extends Activity {
 
         mTask = new LoadTask();
         mTask.execute(TASK_TYPE_LOAD_LIST);
+        bootTime = Util.getTime();
     }
 
     private void initView() {
@@ -328,6 +333,14 @@ public class MainActivity extends Activity {
                 if (mAdapter == null)
                     mAdapter = new AccountAdapter(mContext, mDetailList);
                 db.closeAll(c);
+
+                SharedPreferences pref = getSharedPreferences("pref", 0);
+                String location = pref.getString("location", LOACATION_DEFATUL);
+                if (location.equals(LOACATION_DEFATUL)) {
+                    // getLocation
+                    GeoTask geo = new GeoTask();
+                    geo.execute();
+                }
             }
             return null;
         }
@@ -349,6 +362,21 @@ public class MainActivity extends Activity {
             mRevenue = 0f;
             mTotal = 0f;
         }
+    }
+
+    private class GeoTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            GeocodeHelper geo = new GeocodeHelper(mContext);
+            String location = geo.getGeoLocation();
+            if (location != null) {
+                SharedPreferences pref = mContext.getSharedPreferences("pref", 0);
+                pref.edit().putString("location", location).commit();
+            }
+            return null;
+        }
+
     }
 
     @Override

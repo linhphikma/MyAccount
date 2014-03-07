@@ -3,11 +3,13 @@ package com.xifan.myaccount.util;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
 import com.pinyin4android.PinyinUtil;
+import com.xifan.myaccount.R;
 import com.xifan.myaccount.data.TypeInfo;
 
 import java.text.SimpleDateFormat;
@@ -43,18 +45,25 @@ public class Util {
     }
 
     public static int getDaysFromNow(String date) {
-        SimpleDateFormat dateFomatter = new SimpleDateFormat("yyyy-MM-dd HH:mm",
-                Locale.getDefault());
-        String dateNow = dateFomatter.format(Calendar.getInstance().getTime());
+        String dateNow = getTime();
         int day = Integer.valueOf(date.substring(8, 10));
         int dayNow = Integer.valueOf(dateNow.substring(8, 10));
         int month = Integer.valueOf(date.substring(5, 7));
         int monthNow = Integer.valueOf(dateNow.substring(5, 7));
-        if (monthNow == month) {
+        int year = Integer.valueOf(date.substring(0, 4));
+        int yearNow = Integer.valueOf(dateNow.substring(0, 4));
+        if (year == yearNow && monthNow == month) {
             return dayNow - day;
         } else {
             return 30;
         }
+    }
+
+    public static int getMinutesFromNow(String date) {
+        String dateNow = getTime();
+        int m = Integer.valueOf(date.substring(14, 16));
+        int mNow = Integer.valueOf(dateNow.substring(14, 16));
+        return mNow - m;
     }
 
     public static int getMinuteOfTime() {
@@ -74,7 +83,7 @@ public class Util {
             tmparray[i] = list[i];
             for (int j = i + 1; j < max; j++) {
                 if (tmparray[i].weight < list[j].weight) {
-                    // put the bigest to head
+                    // put the biggest to head
                     tmparray[i] = list[j];
                     hasChanged = true;
                 }
@@ -174,6 +183,12 @@ public class Util {
     public static int getPx(Context context, int dp) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dp * scale + 0.5f);
+    }
+
+    public static String getLocation(Context context) {
+        SharedPreferences pref = context.getSharedPreferences("pref", 0);
+        return pref.getString("location",
+                context.getResources().getString(R.string.location_default_name));
     }
 
 }

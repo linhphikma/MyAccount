@@ -22,6 +22,7 @@
     <string name="msg_no_details">No Details</string>
     <string name="msg_input">Please input</string>
     <string name="msg_input_date">Please select date</string>
+    <string name="msg_location">Get location:</string>
     
     <!-- Info -->
     <string name="money">money amount</string>
@@ -29,6 +30,7 @@
     <string name="type">record type</string>
     <string name="location">location</string>
     <string name="note">note</string>
+    <string name="location_default_name">China</string>
     
     <!-- Floating Bar -->
     <string name="floating_bar_expend">Monthly Expend:</string>
